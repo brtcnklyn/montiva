@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ödeme — MONTIVA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<main>
+  <div class="page-hero">
+    <div class="container"><h1>Güvenli Ödeme</h1><p><svg class="ic-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Bilgileriniz 256-bit SSL ile şifrelenir.</p></div>
+  </div>
+  <div class="container" id="checkout-root"></div>
+</main>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/db.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/chat.js"></script>
+<script>
+  renderChrome();
+  const cart = getCart();
+  const root = document.getElementById("checkout-root");
+
+  if (!cart.length) {
+    root.innerHTML = `
+      <div class="empty-state">
+        <div class="big">🧾</div>
+        <h2>Ödenecek ürün yok</h2>
+        <p>Sepetiniz boş görünüyor.</p>
+        <a href="urunler.html" class="btn btn-primary">Alışverişe Başla →</a>
+      </div>`;
+  } else {
+    const total = cartTotal();
+    root.innerHTML = `
+    <form class="checkout-layout" id="checkoutForm" novalidate>
+      <div>
+        <div class="form-card">
+          <h3><span class="n">1</span> Teslimat Bilgileri</h3>
+          <div class="frow">
+            <div class="field"><label>Ad *</label><input id="f-ad" required></div>
+            <div class="field"><label>Soyad *</label><input id="f-soyad" required></div>
+          </div>
+          <div class="frow">
+            <div class="field"><label>E-posta *</label><input id="f-email" type="email" required></div>
+            <div class="field"><label>Telefon *</label><input id="f-tel" type="tel" placeholder="05xx xxx xx xx" required></div>
+          </div>
+          <div class="frow">
+            <div class="field"><label>İl *</label><input id="f-il" required></div>
+            <div class="field"><label>İlçe *</label><input id="f-ilce" required></div>
+          </div>
+          <div class="field"><label>Adres *</label><textarea id="f-adres" rows="3" required></textarea></div>
+        </div>
+
+        <div class="form-card">
+          <h3><span class="n">2</span> Ödeme Yöntemi</h3>
+          <div class="pay-methods">
+            <label class="pay-method">
+              <input type="radio" name="pay" value="kart" checked onchange="toggleCard()">
+              <div><b><svg class="ic-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/></svg> Kredi / Banka Kartı</b><span>Visa, Mastercard, Troy — 3D Secure</span></div>
+            </label>
+            <label class="pay-method">
+              <input type="radio" name="pay" value="havale" onchange="toggleCard()">
+              <div><b><svg class="ic-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M5 21V10"/><path d="M19 21V10"/><path d="M9 21v-6h6v6"/><path d="m2 10 10-7 10 7z"/></svg> Havale / EFT</b><span>%3 indirim — sipariş sonrası IBAN bilgisi e-postanıza gelir</span></div>
+            </label>
+            <label class="pay-method">
+              <input type="radio" name="pay" value="kapida" onchange="toggleCard()">
+              <div><b><svg class="ic-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg> Kapıda Ödeme</b><span>+49,90 TL hizmet bedeli — nakit veya kartla</span></div>
+            </label>
+          </div>
+          <div id="cardFields">
+            <div class="field"><label>Kart Üzerindeki İsim</label><input id="c-name" placeholder="AD SOYAD"></div>
+            <div class="field"><label>Kart Numarası</label><input id="c-no" placeholder="•••• •••• •••• ••••" maxlength="19" inputmode="numeric"></div>
+            <div class="frow">
+              <div class="field"><label>Son Kullanma</label><input id="c-exp" placeholder="AA/YY" maxlength="5"></div>
+              <div class="field"><label>CVV</label><input id="c-cvv" placeholder="•••" maxlength="3" inputmode="numeric"></div>
+            </div>
+            <div class="demo-note"><svg class="ic-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> Demo modu: Bu site henüz gerçek ödeme altyapısına bağlı değildir. Kart bilgisi girmeyin; sipariş simüle edilecektir.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary">
+        <h3>Sipariş Özeti</h3>
+        ${cart.map(r => { const p = getProduct(r.id); return `<div class="row"><span>${p.name} (${p.color}) × ${r.qty}</span><span>${fmtPrice(p.price * r.qty)}</span></div>`; }).join("")}
+        <div class="row"><span>Kargo</span><span style="color:var(--green);font-weight:700">Ücretsiz</span></div>
+        <div class="row" id="extraRow" style="display:none"><span>Kapıda ödeme bedeli</span><span>₺ 49,90</span></div>
+        <div class="row" id="discRow" style="display:none"><span>Havale indirimi (%3)</span><span style="color:var(--green)">−${fmtPrice(total * 0.03)}</span></div>
+        <div class="row total"><span>Toplam</span><span id="grandTotal">${fmtPrice(total)}</span></div>
+        <button type="submit" class="btn btn-primary"><svg class="ic-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Siparişi Tamamla</button>
+        <div class="free-ship-note">14 gün koşulsuz iade hakkınız var</div>
+      </div>
+    </form>`;
+
+    window.toggleCard = function () {
+      const v = document.querySelector('input[name="pay"]:checked').value;
+      document.getElementById("cardFields").style.display = v === "kart" ? "block" : "none";
+      document.getElementById("extraRow").style.display = v === "kapida" ? "flex" : "none";
+      document.getElementById("discRow").style.display = v === "havale" ? "flex" : "none";
+      let g = total;
+      if (v === "kapida") g += 49.9;
+      if (v === "havale") g *= 0.97;
+      document.getElementById("grandTotal").textContent = fmtPrice(g);
+    };
+
+    document.getElementById("checkoutForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const ids = ["f-ad", "f-soyad", "f-email", "f-tel", "f-il", "f-ilce", "f-adres"];
+      let ok = true;
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        const bad = !el.value.trim() || (id === "f-email" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(el.value));
+        el.classList.toggle("err", bad);
+        if (bad) ok = false;
+      });
+      if (!ok) { toast("<svg class="ic-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> Lütfen zorunlu alanları doldurun"); return; }
+
+      const payType = document.querySelector('input[name="pay"]:checked').value;
+      const orderNo = "MNT-" + Date.now().toString().slice(-8);
+      const payLabels = { kart: "Kredi/Banka Kartı", havale: "Havale/EFT", kapida: "Kapıda Ödeme" };
+      const order = {
+        no: orderNo,
+        date: new Date().toISOString(),
+        status: "Yeni",
+        items: cart.map(r => { const p = getProduct(r.id); return { id: r.id, name: p.name, color: p.color, qty: r.qty, price: p.price }; }),
+        total: document.getElementById("grandTotal").textContent,
+        pay: payLabels[payType] || payType,
+        name: document.getElementById("f-ad").value + " " + document.getElementById("f-soyad").value,
+        email: document.getElementById("f-email").value,
+        phone: document.getElementById("f-tel").value,
+        address: document.getElementById("f-adres").value + " / " + document.getElementById("f-ilce").value + ", " + document.getElementById("f-il").value
+      };
+      DB.addOrder(order);
+      DB.decrementStock(cart);
+      localStorage.removeItem("montiva_cart");
+      location.href = "siparis-tamamlandi.html?no=" + orderNo;
+    });
+  }
+</script>
+</body>
+</html>

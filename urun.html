@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ürün Detayı — MONTIVA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+
+<main class="container" id="pdp-root"></main>
+
+<div class="qr-modal" id="qrModal">
+  <div class="qr-card">
+    <button class="close-x" id="qr-close" onclick="closeQR()"></button>
+    <h3 id="qr-title">Telefonunda Evinde Gör</h3>
+    <p>AR (kamerayla evine yerleştirme) telefonda çalışır. Aşağıdaki kodu telefon kameranla okut, ürün 3D olarak açılsın; sonra <b>“Evimde Gör”</b> ile kameranı aç.</p>
+    <div class="qrbox" id="qrbox"></div>
+    <div class="steps-mini">
+      <div><span class="n">1</span> Telefon kamerasını QR koda tut</div>
+      <div><span class="n">2</span> Açılan sayfada <b>“Evimde Gör (AR)”</b>e dokun</div>
+      <div><span class="n">3</span> Kamerayı zemine doğrult, ürünü yerleştir</div>
+    </div>
+    <div class="url" id="qrUrl"></div>
+  </div>
+</div>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/db.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/chat.js"></script>
+<script>
+  renderChrome("products");
+  const id = new URLSearchParams(location.search).get("id");
+  const p = getProduct(id) || PRODUCTS[0];
+  document.title = `${p.name} (${p.color}) — MONTIVA`;
+  const disc = Math.round((1 - p.price / p.listPrice) * 100);
+  const out = p.stock <= 0, low = p.stock > 0 && p.stock <= 5;
+  const stockCls = out ? "out" : low ? "low" : "";
+  const stockTxt = out ? "Stokta yok" : low ? `Son ${p.stock} adet!` : `Stokta — ${p.stock} adet`;
+
+  // renk varyantları (aynı ürün ailesi) + yorumlar
+  const variants = PRODUCTS.filter(x => x.name === p.name);
+  const colorHex = c => /mint/i.test(c) ? "#8FD3C0" : /siyah|black|metal/i.test(c) ? "#22262e" : /beyaz|white/i.test(c) ? "#eee" : /gold|altın/i.test(c) ? "#caa96a" : "#c9c9c9";
+  const revs = getReviews(p.id);
+  const avg = revs.length ? (revs.reduce((s, r) => s + r.r, 0) / revs.length).toFixed(1) : "0";
+
+  document.getElementById("pdp-root").innerHTML = `
+    <div class="crumbs"><a href="index.html">Ana Sayfa</a> / <a href="urunler.html">Ürünler</a> / <b>${p.name}</b></div>
+    <div class="pdp">
+      <div class="gallery" id="gallery">
+        <div class="media-tabs">
+          <button class="active" id="tab-photo" onclick="showMedia('photo')">${icon("image", 17)} Fotoğraflar</button>
+          <button id="tab-3d" onclick="showMedia('3d')">${icon("cube", 17)} 3D & Evimde Gör</button>
+        </div>
+        <div class="main-img" id="mainImgWrap"><img id="mainImg" src="${p.images[0]}" alt="${p.name}"></div>
+        <div class="media-3d" id="media3d">
+          <span class="badge3d">${icon("cube", 14)} Canlı 3D</span>
+          <model-viewer id="mv" src="${p.model}" ios-src="${p.usdzModel}" alt="${p.name} 3D modeli"
+            camera-controls auto-rotate auto-rotate-delay="0" rotation-per-second="18deg" touch-action="pan-y"
+            ar ar-modes="webxr scene-viewer quick-look" ar-scale="fixed"
+            shadow-intensity="1.1" exposure="1.1" camera-orbit="25deg 76deg auto" min-field-of-view="25deg"
+            interaction-prompt="auto" loading="eager">
+            <button slot="ar-button" class="btn btn-mint ar-btn">${icon("mobile", 18)} Evimde Gör (AR)</button>
+            <div class="ar-hint">${icon("cursor", 15)} Sürükle döndür • tekerlek yakınlaştır</div>
+          </model-viewer>
+        </div>
+        <div class="thumbs" id="thumbs">
+          ${p.images.map((src, i) => `<img src="${src}" class="${i === 0 ? "active" : ""}" onclick="swapImg(this,'${src}')" alt="görsel ${i + 1}">`).join("")}
+        </div>
+      </div>
+      <div class="pdp-info">
+        <span class="sku">SKU: ${p.sku}${p.badge ? ` • <span style="color:var(--primary-700)">${p.badge}</span>` : ""}</span>
+        <h1>${p.name}</h1>
+        <div class="variant">
+          ${revs.length ? `<span style="color:#F5B027;display:inline-flex;gap:1px;vertical-align:-2px">${stars(avg, 15)}</span> <b style="color:var(--ink)">${avg}</b> <a href="#reviews" style="color:var(--primary-700)">(${revs.length} yorum)</a> &nbsp;•&nbsp;` : ""}
+          Ölçü: <b>${p.dims}</b>
+        </div>
+        <p class="muted" style="font-size:.93rem">${p.short}</p>
+        ${variants.length > 1 ? `<div class="variant-picker">
+          <div class="vlabel">Renk: <b>${p.color}</b></div>
+          <div class="swatches">
+            ${variants.map(v => `<a class="swatch ${v.id === p.id ? "active" : ""} ${v.stock <= 0 ? "out" : ""}" href="urun.html?id=${v.id}"><span class="dot" style="background:${colorHex(v.color)}"></span>${v.color}</a>`).join("")}
+          </div>
+        </div>` : ""}
+        <div class="pdp-prices">
+          <span class="price">${fmtPrice(p.price)}</span>
+          <span class="old-price">${fmtPrice(p.listPrice)}</span>
+          <span class="discount-tag">%${disc} indirim</span>
+        </div>
+        <div class="stock-line"><span class="stock-dot ${stockCls}"></span> ${stockTxt}${out ? "" : " • Bugün sipariş ver, 1-3 iş gününde kargoda"}</div>
+        <div class="qty-row">
+          <div class="qty">
+            <button onclick="chgQty(-1)">−</button>
+            <input id="qty" type="text" value="1" readonly>
+            <button onclick="chgQty(1)">+</button>
+          </div>
+          <button class="btn btn-primary" ${out ? "disabled" : ""} onclick="addToCart('${p.id}', parseInt(document.getElementById('qty').value))">${icon("cart", 18)} ${out ? "Stokta Yok" : "Sepete Ekle"}</button>
+        </div>
+        <button class="btn btn-mint" style="width:100%;margin-bottom:8px" onclick="openAR()">${icon("scan", 18)} 3D İncele & Evimde Gör (AR)</button>
+        <a class="pdf-btn" href="${p.pdf}" download>${icon("download", 18)} Montaj Kılavuzunu İndir (PDF)</a>
+        <div class="trust-row">
+          <div>${icon("truck", 16)} Ücretsiz kargo</div><div>${icon("shield", 16)} 2 yıl garanti</div>
+          <div>${icon("wrench", 16)} Alyan anahtarı dahil</div><div>${icon("return", 16)} 14 gün iade hakkı</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab-btns">
+        <button class="active" onclick="showTab(this,'t-desc')">Açıklama</button>
+        <button onclick="showTab(this,'t-specs')">Teknik Özellikler</button>
+        <button onclick="showTab(this,'t-montaj')">Montaj</button>
+        <button onclick="showTab(this,'t-kargo')">Kargo & İade</button>
+      </div>
+      <div class="tab-panel show" id="t-desc"><p style="max-width:70ch;color:var(--ink-2)">${p.desc}</p></div>
+      <div class="tab-panel" id="t-specs"><table class="specs">${Object.entries(p.specs).map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("")}</table></div>
+      <div class="tab-panel" id="t-montaj">
+        <ul class="montaj-steps">${p.montaj.map((s, i) => `<li><span class="n">${i + 1}</span>${s}</li>`).join("")}</ul>
+        <a class="pdf-btn" style="max-width:640px;margin-top:16px" href="${p.pdf}" download>${icon("download", 18)} Detaylı Montaj Kılavuzunu İndir (PDF)</a>
+      </div>
+      <div class="tab-panel" id="t-kargo">
+        <table class="specs">
+          <tr><td>Kargoya Verilme</td><td>1–3 iş günü</td></tr>
+          <tr><td>Teslimat Süresi</td><td>2–4 iş günü</td></tr>
+          <tr><td>Kargo Ücreti</td><td>Ücretsiz (${SITE.freeShippingLimit} TL üzeri)</td></tr>
+          <tr><td>Paketleme</td><td>Güçlendirilmiş, darbeye dayanıklı koli</td></tr>
+          <tr><td>İade</td><td>14 gün içinde, monte edilmemiş ve orijinal ambalajında</td></tr>
+          <tr><td>Eksik / Hasarlı Parça</td><td>48 saatte ücretsiz yedek parça gönderimi</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="aftercare">
+      <div class="item"><span class="ic">${icon("shield", 20)}</span><div><b>2 Yıl Garanti</b><span>Tüm ürünlerde üretici garantisi</span></div></div>
+      <div class="item"><span class="ic">${icon("refresh", 20)}</span><div><b>Ömür Boyu Yedek Parça</b><span>Eksik/hasarlı parça 48 saatte ücretsiz</span></div></div>
+      <div class="item"><span class="ic">${icon("wrench", 20)}</span><div><b>Montaj Desteği</b><span>PDF kılavuz + <a onclick="document.getElementById('chat-fab').click()" style="cursor:pointer">AI canlı destek</a></span></div></div>
+      <div class="item"><span class="ic">${icon("support", 20)}</span><div><b>14 Gün İade</b><span><a href="destek.html">Satış sonrası destek →</a></span></div></div>
+    </div>
+
+    <section class="block" id="reviews" style="padding-top:0">
+      <div class="section-head"><div><span class="kicker">Değerlendirmeler</span><h2>Müşteri Yorumları</h2>
+        ${revs.length ? `<p><span style="color:#F5B027;display:inline-flex;gap:2px;vertical-align:-3px">${stars(avg, 17)}</span> <b>${avg}</b> / 5 &nbsp;•&nbsp; ${revs.length} yorum</p>` : ""}</div></div>
+      <div class="reviews">
+        ${revs.map(r => `<div class="review"><div class="stars">${stars(r.r, 15)}</div><p>“${r.t}”</p>
+          <div class="who"><span class="av">${r.n[0]}</span><div><b>${r.n}</b><span>${r.c} • Doğrulanmış Alıcı • ${r.d}</span></div></div></div>`).join("")}
+      </div>
+    </section>
+
+    <section class="block" style="padding-top:0">
+      <div class="section-head"><div><span class="kicker">Benzer</span><h2>Bunlar da İlgini Çekebilir</h2></div></div>
+      <div class="grid-products">${PRODUCTS.filter(x => x.id !== p.id && x.name !== p.name).slice(0, 4).map(productCardHTML).join("")}</div>
+    </section>`;
+
+  function showMedia(mode) {
+    const g = document.getElementById("gallery");
+    const m3 = document.getElementById("media3d");
+    document.getElementById("tab-photo").classList.toggle("active", mode === "photo");
+    document.getElementById("tab-3d").classList.toggle("active", mode === "3d");
+    if (mode === "3d") { g.classList.add("show-3d"); m3.classList.add("show"); }
+    else { g.classList.remove("show-3d"); m3.classList.remove("show"); }
+  }
+  function swapImg(el, src) {
+    document.getElementById("mainImg").src = src;
+    document.querySelectorAll(".thumbs img").forEach(t => t.classList.remove("active"));
+    el.classList.add("active"); showMedia("photo");
+  }
+  function chgQty(d) { const el = document.getElementById("qty"); el.value = Math.max(1, Math.min(p.stock || 1, parseInt(el.value) + d)); }
+  function showTab(btn, tid) {
+    document.querySelectorAll(".tab-btns button").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-panel").forEach(t => t.classList.remove("show"));
+    btn.classList.add("active"); document.getElementById(tid).classList.add("show");
+  }
+
+  // AR: mobilde doğrudan AR açar; masaüstünde telefona bağlanmak için QR gösterir
+  function openAR() {
+    showMedia("3d");
+    document.getElementById("gallery").scrollIntoView({ behavior: "smooth", block: "start" });
+    const mv = document.getElementById("mv");
+    if (mv && mv.canActivateAR) { try { mv.activateAR(); return; } catch (e) {} }
+    showQR();
+  }
+  function arUrl() {
+    const path = "urun.html?id=" + p.id + "&view=3d";
+    let origin = (location.protocol === "https:") ? location.origin : (SITE.arBase || location.origin);
+    return origin.replace(/\/+$/, "") + "/" + path;
+  }
+  function showQR() {
+    const url = arUrl();
+    const box = document.getElementById("qrbox");
+    box.innerHTML = "";
+    if (window.QRCode) new QRCode(box, { text: url, width: 220, height: 220, colorDark: "#0f1b33", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
+    else box.textContent = url;
+    document.getElementById("qrUrl").textContent = url.replace(/^https?:\/\//, "");
+    document.getElementById("qrModal").classList.add("show");
+  }
+  function closeQR() { document.getElementById("qrModal").classList.remove("show"); }
+  document.getElementById("qr-close").innerHTML = icon("close", 17);
+  document.getElementById("qr-title").innerHTML = icon("mobile", 20) + " Telefonunda Evinde Gör";
+  document.getElementById("qrModal").addEventListener("click", e => { if (e.target.id === "qrModal") closeQR(); });
+
+  // QR/derin bağlantı ile gelindiyse doğrudan 3D görünümü aç
+  if (/^(3d|ar)$/i.test(new URLSearchParams(location.search).get("view") || "")) {
+    showMedia("3d");
+    setTimeout(() => document.getElementById("gallery").scrollIntoView({ behavior: "smooth" }), 300);
+  }
+</script>
+</body>
+</html>

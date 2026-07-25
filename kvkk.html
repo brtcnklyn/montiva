@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KVKK & Gizlilik Politikası — MONTIVA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<main>
+  <div class="page-hero">
+    <div class="container">
+      <h1>KVKK & Gizlilik Politikası</h1>
+      <p>Kişisel verilerinizin korunması bizim için önemlidir. Bu metin, verilerinizin nasıl işlendiğini açıklar.</p>
+    </div>
+  </div>
+
+  <div class="container prose">
+    <p class="muted" style="font-size:.85rem">Son güncelleme: <span id="upd"></span></p>
+
+    <h2>1. Veri Sorumlusu</h2>
+    <p>6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca kişisel verileriniz, veri sorumlusu sıfatıyla <b id="brand1">MONTIVA</b> tarafından aşağıda açıklanan kapsamda işlenmektedir. İletişim: <b id="mail1">destek@montiva.com.tr</b></p>
+
+    <h2>2. İşlenen Kişisel Veriler</h2>
+    <ul>
+      <li><b>Kimlik ve iletişim verileri:</b> Ad, soyad, e-posta, telefon numarası.</li>
+      <li><b>Teslimat verileri:</b> İl, ilçe, açık adres.</li>
+      <li><b>Sipariş verileri:</b> Sipariş içeriği, tutar, ödeme yöntemi (kart bilgileriniz tarafımızca saklanmaz).</li>
+      <li><b>İşlem güvenliği verileri:</b> Site kullanımına ilişkin teknik kayıtlar.</li>
+    </ul>
+
+    <h2>3. Kişisel Verilerin İşlenme Amaçları</h2>
+    <ul>
+      <li>Siparişinizin oluşturulması, hazırlanması ve teslim edilmesi,</li>
+      <li>Ödeme ve fatura süreçlerinin yürütülmesi,</li>
+      <li>Müşteri destek taleplerinin karşılanması,</li>
+      <li>Yasal yükümlülüklerin yerine getirilmesi,</li>
+      <li>Açık rızanız olması halinde kampanya ve bilgilendirmelerin iletilmesi.</li>
+    </ul>
+
+    <h2>4. Verilerin Aktarılması</h2>
+    <p>Kişisel verileriniz; siparişinizin teslimi için kargo firmalarıyla, ödeme işlemleri için yetkili ödeme kuruluşlarıyla ve yasal olarak yetkili kamu kurumlarıyla, yalnızca ilgili amaçla sınırlı olarak paylaşılabilir. Verileriniz pazarlama amacıyla üçüncü taraflara satılmaz.</p>
+
+    <h2>5. Verilerin Saklanma Süresi</h2>
+    <p>Kişisel verileriniz, ilgili mevzuatta öngörülen süreler ve işleme amacının gerektirdiği süre boyunca saklanır; bu sürelerin sonunda silinir, yok edilir veya anonim hale getirilir.</p>
+
+    <h2>6. KVKK Kapsamındaki Haklarınız</h2>
+    <p>KVKK'nın 11. maddesi uyarınca; kişisel verilerinizin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep etme, işlenme amacını öğrenme, eksik/yanlış işlenmişse düzeltilmesini isteme, silinmesini veya yok edilmesini talep etme ve işlemenin münhasıran otomatik sistemlerle analizi sonucu aleyhinize bir sonuç çıkmasına itiraz etme haklarına sahipsiniz.</p>
+    <p>Bu haklarınızı kullanmak için <b id="mail2">destek@montiva.com.tr</b> adresine başvurabilirsiniz.</p>
+
+    <h2>7. Çerez (Cookie) Politikası</h2>
+    <p>Sitemiz, alışveriş sepeti ve tercihlerinizin hatırlanması gibi işlevler için tarayıcınızın yerel depolama alanını (localStorage) kullanır. Bu veriler yalnızca sizin cihazınızda tutulur. Zorunlu olmayan çerezler için onayınız esas alınır.</p>
+
+    <h2>8. Mesafeli Satış & İade</h2>
+    <p>Mesafeli Sözleşmeler Yönetmeliği uyarınca, teslim tarihinden itibaren 14 gün içinde cayma hakkınızı kullanabilirsiniz. Ürünün monte edilmemiş ve orijinal ambalajında olması gerekir. Detaylar için <a href="sss.html">S.S.S.</a> sayfamızı inceleyebilirsiniz.</p>
+
+    <div class="demo-note" style="margin-top:30px"><svg class="ic-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> Not: Bu metin genel bir bilgilendirme şablonudur. Yayına almadan önce şirket ünvanı, vergi/ticaret bilgileri ve bir hukuk danışmanı onayıyla nihai hale getirilmelidir.</div>
+  </div>
+</main>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/db.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/chat.js"></script>
+<script>
+  renderChrome();
+  document.getElementById("upd").textContent = new Date().toLocaleDateString("tr-TR");
+  document.getElementById("brand1").textContent = SITE.brand;
+  document.getElementById("mail1").textContent = SITE.email;
+  document.getElementById("mail2").textContent = SITE.email;
+</script>
+</body>
+</html>

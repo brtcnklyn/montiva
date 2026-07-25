@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MONTIVA — Demonte Mobilya | Kur. Kullan. Keyfini çıkar.</title>
+  <meta name="description" content="Demonte kahve köşesi ve mutfak mobilyaları. 3D önizleme, AR ile evinde gör, kolay montaj, PDF kılavuz, ücretsiz kargo.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+</head>
+<body>
+
+<main>
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-bg"><img src="assets/img/capella-siyah-1.webp" alt="MONTIVA kahve köşesi"></div>
+    <div class="container">
+      <div class="hero-copy">
+        <span class="eyebrow" id="hero-eyebrow"></span>
+        <h1><span data-content="home.heroTitle1"></span> <span data-content="home.heroHighlight"></span>,<br><span data-content="home.heroTitle2"></span></h1>
+        <p class="lead" data-content="home.heroLead"></p>
+        <div class="actions" id="hero-actions"></div>
+        <div class="hero-stats" id="hero-stats"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GÜVEN ŞERİDİ -->
+  <div class="trust-strip"><div class="trust-track" id="trust-track"></div></div>
+
+  <!-- ÜRÜNLER -->
+  <section class="block reveal">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="kicker">Koleksiyon</span>
+          <h2 data-content="home.productsHeading"></h2>
+          <p data-content="home.productsSub"></p>
+        </div>
+        <a href="urunler.html" class="btn btn-outline" id="all-btn">Tümünü Gör</a>
+      </div>
+      <div class="grid-products" id="home-products"></div>
+    </div>
+  </section>
+
+  <!-- AR VİTRİN -->
+  <section class="block ar-spot reveal" id="ar">
+    <div class="container">
+      <div class="wrap">
+        <model-viewer src="assets/models/capella-siyah.glb" ios-src="assets/models/capella-siyah.usdz"
+          alt="AR ile evinde gör" camera-controls auto-rotate auto-rotate-delay="0"
+          rotation-per-second="18deg" touch-action="pan-y" shadow-intensity="1.1" exposure="1.1"
+          camera-orbit="30deg 75deg auto" ar ar-modes="webxr scene-viewer quick-look" ar-scale="fixed"
+          interaction-prompt="none" loading="lazy">
+          <button slot="ar-button" class="btn btn-mint ar-btn" id="ar-spot-btn">Evimde Gör (AR)</button>
+        </model-viewer>
+        <div>
+          <span class="kicker">Yeni Nesil Alışveriş</span>
+          <h2>Almadan önce <span style="background:linear-gradient(100deg,var(--primary),var(--mint-600));-webkit-background-clip:text;background-clip:text;color:transparent">evinde gör</span></h2>
+          <p class="muted">Her ürünü 360° döndürüp inceleyebilir, telefonunun kamerasıyla gerçek boyutunda odana yerleştirebilirsin. "Acaba sığar mı, rengi uyar mı?" derdi bitti.</p>
+          <div class="feat-list" id="ar-feats"></div>
+          <a href="urunler.html" class="btn btn-primary" id="ar-cta">Ürünlerde Dene</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ÖZELLİKLER -->
+  <section class="block reveal" style="padding-top:0">
+    <div class="container"><div class="features" id="home-features"></div></div>
+  </section>
+
+  <!-- NASIL ÇALIŞIR -->
+  <section class="block reveal" id="nasil" style="background:#fff">
+    <div class="container">
+      <div class="section-head"><div><span class="kicker">Süreç</span><h2>Nasıl Çalışır?</h2><p>Biz üretiyoruz, siz kolayca kuruyorsunuz. Böylece hem kargo hem fiyat avantajı sizde kalıyor.</p></div></div>
+      <div class="steps" id="home-steps"></div>
+    </div>
+  </section>
+
+  <!-- YORUMLAR -->
+  <section class="block reveal">
+    <div class="container">
+      <div class="section-head"><div><span class="kicker">Müşteri Deneyimi</span><h2>Kullananlar Ne Diyor?</h2><p>Binlerce mutlu evin tercihi — birkaç yorum:</p></div></div>
+      <div class="reviews" id="reviews"></div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="block reveal">
+    <div class="container">
+      <div class="cta-soft">
+        <div>
+          <h2 data-content="home.ctaTitle"></h2>
+          <p data-content="home.ctaText"></p>
+        </div>
+        <button class="btn btn-primary" id="cta-chat" onclick="document.getElementById('chat-fab').click()"></button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/db.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/chat.js"></script>
+<script>
+  renderChrome("home");
+  const H = CONTENT.home;
+
+  document.getElementById("hero-eyebrow").innerHTML = icon("zap", 15) + " " + H.heroEyebrow;
+  document.getElementById("hero-actions").innerHTML =
+    `<a href="urunler.html" class="btn btn-primary">${H.cta1} ${icon("arrowRight", 18)}</a>
+     <a href="#ar" class="btn btn-ghost">${icon("scan", 18)} Almadan Önce Evinde Gör</a>`;
+  document.getElementById("hero-stats").innerHTML = H.stats.map(s => `<div><b>${s.n}</b><span>${s.l}</span></div>`).join("");
+  document.getElementById("all-btn").innerHTML = `Tümünü Gör ${icon("arrowRight", 17)}`;
+  document.getElementById("ar-cta").innerHTML = `Ürünlerde Dene ${icon("arrowRight", 18)}`;
+  document.getElementById("ar-spot-btn").innerHTML = `${icon("mobile", 18)} Evimde Gör (AR)`;
+  document.getElementById("cta-chat").innerHTML = `${icon("bot", 18)} ${H.ctaButton}`;
+
+  document.getElementById("home-products").innerHTML = PRODUCTS.map(productCardHTML).join("");
+  document.getElementById("home-features").innerHTML = H.features.map(f =>
+    `<div class="feature"><div class="ic">${iconOrRaw(f.i, 22)}</div><div><b>${f.t}</b><span>${f.d}</span></div></div>`).join("");
+  document.getElementById("home-steps").innerHTML = H.steps.map(s => `<div class="step"><b>${s.t}</b><span>${s.d}</span></div>`).join("");
+
+  document.getElementById("ar-feats").innerHTML = [
+    { i: "cursor", b: "Masaüstünde 3D", t: "fareyle her açıdan döndür, yakınlaştır." },
+    { i: "mobile", b: "Telefonda AR", t: "kamerayı aç, ürünü gerçek ölçüsünde evine koy." },
+    { i: "ruler", b: "Gerçek boyut", t: "santimi santimine, olduğu gibi görürsün." }
+  ].map(f => `<div><span class="ic">${icon(f.i, 18)}</span><div><b>${f.b}</b> — ${f.t}</div></div>`).join("");
+
+  // güven şeridi
+  const trust = [
+    { i: "truck", t: "Ücretsiz Kargo" }, { i: "wrench", t: "Alet Kutuda" },
+    { i: "file", t: "PDF Montaj Kılavuzu" }, { i: "scan", t: "3D & AR Önizleme" },
+    { i: "shield", t: "2 Yıl Garanti" }, { i: "refresh", t: "Yedek Parça Desteği" },
+    { i: "pin", t: "%100 Yerli Üretim" }, { i: "bot", t: "7/24 AI Destek" }
+  ];
+  document.getElementById("trust-track").innerHTML = [...trust, ...trust]
+    .map(t => `<span>${icon(t.i, 17)} ${t.t}</span>`).join("");
+
+  // müşteri yorumları
+  const homeReviews = [
+    { t: "Kurulumu gerçekten 25 dakika sürdü, PDF kılavuz çok net. Mutfağımdaki kahve köşem harika oldu.", n: "Elif K.", c: "İstanbul", r: 5 },
+    { t: "Sipariş vermeden AR ile salona koyup baktım, tam istediğim gibi durdu. Bu özellik çok işime yaradı.", n: "Burak T.", c: "Ankara", r: 5 },
+    { t: "Kargoda bir raf çizilmişti, fotoğraf attım ertesi gün yenisi geldi. İlgi için teşekkürler.", n: "Merve A.", c: "İzmir", r: 5 }
+  ];
+  document.getElementById("reviews").innerHTML = homeReviews.map(r => `
+    <div class="review"><div class="stars">${stars(r.r, 15)}</div><p>“${r.t}”</p>
+      <div class="who"><span class="av">${r.n[0]}</span><div><b>${r.n}</b><span>${r.c} • Doğrulanmış Alıcı</span></div></div></div>`).join("");
+
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: .12 });
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+</script>
+</body>
+</html>

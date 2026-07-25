@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ürünler — MONTIVA Demonte Mobilya</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<main>
+  <div class="page-hero">
+    <div class="container">
+      <h1>Tüm Ürünler</h1>
+      <p>Kahve köşesi ve mutfak düzenleyici koleksiyonumuz — hepsi demonte, hepsi ücretsiz kargolu.</p>
+    </div>
+  </div>
+
+  <section class="block">
+    <div class="container">
+      <div class="section-head">
+        <div><span class="kicker" id="count-label"></span><h2>Koleksiyon</h2></div>
+        <div class="field" style="margin:0;min-width:210px">
+          <select id="sort" onchange="renderList()">
+            <option value="default">Önerilen Sıralama</option>
+            <option value="price-asc">Fiyat: Düşükten Yükseğe</option>
+            <option value="price-desc">Fiyat: Yüksekten Düşüğe</option>
+            <option value="discount">İndirim Oranı</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-products" id="list"></div>
+    </div>
+  </section>
+</main>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/db.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/chat.js"></script>
+<script>
+  renderChrome("products");
+  function renderList() {
+    const mode = document.getElementById("sort").value;
+    let items = [...PRODUCTS];
+    if (mode === "price-asc") items.sort((a, b) => a.price - b.price);
+    if (mode === "price-desc") items.sort((a, b) => b.price - a.price);
+    if (mode === "discount") items.sort((a, b) => (1 - b.price / b.listPrice) - (1 - a.price / a.listPrice));
+    document.getElementById("list").innerHTML = items.map(productCardHTML).join("");
+    document.getElementById("count-label").textContent = items.length + " ürün listeleniyor";
+  }
+  renderList();
+</script>
+</body>
+</html>
