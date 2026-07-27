@@ -6,6 +6,21 @@
   const money = n => "₺" + Number(n || 0).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   let state = { view: "dashboard", products: [], content: null, site: null };
+  let pendingUpload = { glb: null, usdz: null };
+
+  // masaüstünden 3D dosyası seç → veri olarak sakla (data URL)
+  function onModelFile(type) {
+    const inp = document.getElementById(type === "glb" ? "m-model-file" : "m-usdz-file");
+    const file = inp.files && inp.files[0];
+    if (!file) return;
+    if (file.size > 6 * 1024 * 1024) { toast("⚠️ Dosya çok büyük (~6MB üzeri). Daha küçük bir model kullanın."); inp.value = ""; return; }
+    const r = new FileReader();
+    r.onload = () => {
+      pendingUpload[type] = r.result;
+      document.getElementById(type === "glb" ? "m-model-name" : "m-usdz-name").textContent = file.name + " ✓ (kaydedince uygulanır)";
+    };
+    r.readAsDataURL(file);
+  }
 
   /* ================= GİRİŞ ================= */
   function isAuthed() { return sessionStorage.getItem(AUTH_KEY) === "1"; }
@@ -177,6 +192,7 @@
   }
   function editProduct(i) {
     const p = state.products[i];
+    pendingUpload = { glb: null, usdz: null };
     openModal(`
       <h3>Ürün Detayı — ${esc(p.name)}</h3>
       <div class="frow">
@@ -195,13 +211,35 @@
         <div class="cfield"><label>Stok</label><input id="m-stock" type="number" value="${p.stock}"></div>
         <div class="cfield"><label>Rozet (boş = yok)</label><input id="m-badge" value="${esc(p.badge || "")}"></div>
       </div>
+      <div class="cfield"><label>Kategori (üst menüde bu başlık altında listelenir)</label>
+        <input id="m-cat" value="${esc(p.category || "")}" placeholder="Örn: Kahve Köşesi" list="cat-list">
+        <datalist id="cat-list">${[...new Set(state.products.map(x => x.category).filter(Boolean))].map(c => `<option value="${esc(c)}">`).join("")}</datalist>
+      </div>
       <div class="cfield"><label>Kısa Açıklama</label><textarea id="m-short">${esc(p.short)}</textarea></div>
       <div class="cfield"><label>Uzun Açıklama</label><textarea id="m-desc" style="min-height:110px">${esc(p.desc)}</textarea></div>
       <div class="cfield"><label>Görsel URL'leri (her satıra bir tane)</label><textarea id="m-imgs" style="min-height:90px">${esc((p.images||[]).join("\n"))}</textarea></div>
-      <div class="frow">
-        <div class="cfield"><label>3D Model (.glb yolu)</label><input id="m-model" value="${esc(p.model)}"></div>
-        <div class="cfield"><label>Montaj PDF yolu</label><input id="m-pdf" value="${esc(p.pdf)}"></div>
+
+      <div class="upload-block">
+        <div class="cfield" style="margin-bottom:12px">
+          <label>3D Model — Android & Masaüstü (.glb)</label>
+          <div class="upload-row">
+            <input type="file" id="m-model-file" accept=".glb,model/gltf-binary" style="display:none" onchange="ADMIN.onModelFile('glb')">
+            <button type="button" class="btn-sm btn-save" onclick="document.getElementById('m-model-file').click()">${icon("upload", 15)} Dosya Seç (.glb)</button>
+            <span class="upload-name" id="m-model-name">${p.model ? "Mevcut model yüklü" : "Dosya seçilmedi"}</span>
+          </div>
+          <input id="m-model" value="${esc(p.model || "")}" placeholder="veya dosya yolu / URL yapıştır" style="margin-top:8px;font-size:.82rem">
+        </div>
+        <div class="cfield" style="margin-bottom:0">
+          <label>3D Model — iPhone AR (.usdz)</label>
+          <div class="upload-row">
+            <input type="file" id="m-usdz-file" accept=".usdz,model/vnd.usdz+zip" style="display:none" onchange="ADMIN.onModelFile('usdz')">
+            <button type="button" class="btn-sm btn-save" onclick="document.getElementById('m-usdz-file').click()">${icon("upload", 15)} Dosya Seç (.usdz)</button>
+            <span class="upload-name" id="m-usdz-name">${p.usdzModel ? "Mevcut model yüklü" : "Dosya seçilmedi"}</span>
+          </div>
+          <input id="m-usdz" value="${esc(p.usdzModel || "")}" placeholder="veya dosya yolu / URL yapıştır" style="margin-top:8px;font-size:.82rem">
+        </div>
       </div>
+      <div class="cfield"><label>Montaj PDF yolu</label><input id="m-pdf" value="${esc(p.pdf)}"></div>
       <div class="cfield"><label>Teknik Özellikler (Anahtar: Değer, her satıra bir tane)</label><textarea id="m-specs" style="min-height:110px">${esc(Object.entries(p.specs||{}).map(([k,v])=>k+": "+v).join("\n"))}</textarea></div>
       <div class="cfield"><label>Montaj Adımları (her satıra bir tane)</label><textarea id="m-montaj" style="min-height:90px">${esc((p.montaj||[]).join("\n"))}</textarea></div>
       <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:8px">
@@ -216,11 +254,16 @@
     p.price = parseFloat(g("m-price")) || 0; p.listPrice = parseFloat(g("m-list")) || 0; p.stock = parseInt(g("m-stock")) || 0;
     p.badge = g("m-badge").trim() || null; p.short = g("m-short").trim(); p.desc = g("m-desc").trim();
     p.images = g("m-imgs").split("\n").map(s => s.trim()).filter(Boolean);
-    p.model = g("m-model").trim(); p.pdf = g("m-pdf").trim();
+    p.category = g("m-cat").trim();
+    p.model = pendingUpload.glb || g("m-model").trim();
+    p.usdzModel = pendingUpload.usdz || g("m-usdz").trim();
+    p.pdf = g("m-pdf").trim();
     p.specs = {}; g("m-specs").split("\n").forEach(l => { const idx = l.indexOf(":"); if (idx > 0) p.specs[l.slice(0, idx).trim()] = l.slice(idx + 1).trim(); });
     p.montaj = g("m-montaj").split("\n").map(s => s.trim()).filter(Boolean);
-    p.keywords = [p.name, p.color].join(" ").toLowerCase().split(/\s+/);
-    DB.saveProducts(state.products); PRODUCTS = DB.activeProducts();
+    p.keywords = [p.name, p.color, p.category].join(" ").toLowerCase().split(/\s+/);
+    try { DB.saveProducts(state.products); }
+    catch (e) { toast("⚠️ Kayıt alanı doldu — yüklediğiniz 3D dosya çok büyük olabilir. Daha küçük bir model deneyin."); return; }
+    PRODUCTS = DB.activeProducts();
     closeModal(); toast("✅ Ürün güncellendi"); drawProducts();
   }
 
@@ -390,6 +433,12 @@
         <div class="cfield"><label>Genel AR/QR Adresi (site yayına alınınca kendi alan adınız)</label><input id="s-arbase" value="${esc(s.arBase || "")}" placeholder="https://siteniz.com"></div>
       </div>
       <div class="panel">
+        <h2>Ana Sayfa 3D / AR Vitrini</h2><div class="desc">Ana sayfadaki "Almadan önce evinde gör" bölümünde hangi ürünün 3D modeli dönsün?</div>
+        <div class="cfield"><label>Gösterilecek Ürün</label>
+          <select id="s-arprod">${DB.products().map(p => `<option value="${esc(p.id)}" ${s.arSpotProduct === p.id ? "selected" : ""}>${esc(p.name)} — ${esc(p.color)}</option>`).join("")}</select>
+        </div>
+      </div>
+      <div class="panel">
         <h2>Veri Yönetimi</h2><div class="desc">Tüm ürün/metin/ayarları başlangıç durumuna döndürür (siparişler ve mesajlar korunur)</div>
         <button class="btn-sm btn-danger" onclick="ADMIN.resetAll()">↺ Fabrika Ayarlarına Dön</button>
       </div>
@@ -405,6 +454,7 @@
     s.email = g("s-email").trim(); s.address = g("s-address").trim();
     s.freeShippingLimit = parseInt(g("s-ship")) || 0; s.adminPass = g("s-pass").trim() || "montiva2026";
     s.arBase = g("s-arbase").trim();
+    s.arSpotProduct = g("s-arprod");
     DB.saveSite(s); SITE = DB.site(); toast("✅ Ayarlar kaydedildi"); renderApp();
   }
   function resetAll() {
@@ -426,7 +476,7 @@
   function boot() { if (isAuthed()) renderApp(); else renderLogin(); }
   window.ADMIN = {
     go: switchView, newProduct, deleteProduct, editProduct, applyProduct, saveProducts,
-    viewOrder, saveOrderStatus, saveContent, saveSettings, resetAll, closeModal
+    viewOrder, saveOrderStatus, saveContent, saveSettings, resetAll, closeModal, onModelFile
   };
   boot();
 })();

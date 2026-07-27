@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ürünler — MONTIVA Demonte Mobilya</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -13,8 +13,9 @@
 <main>
   <div class="page-hero">
     <div class="container">
-      <h1>Tüm Ürünler</h1>
+      <h1 id="page-title">Tüm Ürünler</h1>
       <p>Kahve köşesi ve mutfak düzenleyici koleksiyonumuz — hepsi demonte, hepsi ücretsiz kargolu.</p>
+      <div class="cat-chips" id="cat-chips"></div>
     </div>
   </div>
 
@@ -43,9 +44,21 @@
 <script src="assets/js/chat.js"></script>
 <script>
   renderChrome("products");
+  const activeCat = new URLSearchParams(location.search).get("cat");
+
+  // kategori çipleri
+  const cats = [...new Set(PRODUCTS.map(p => p.category).filter(Boolean))];
+  document.getElementById("cat-chips").innerHTML =
+    `<a class="cat-chip ${!activeCat ? "active" : ""}" href="urunler.html">Tümü</a>` +
+    cats.map(c => `<a class="cat-chip ${activeCat === c ? "active" : ""}" href="urunler.html?cat=${encodeURIComponent(c)}">${c}</a>`).join("");
+  if (activeCat) {
+    document.getElementById("page-title").textContent = activeCat;
+    document.querySelector(".page-hero p").textContent = `${activeCat} kategorisindeki ürünler — hepsi demonte, ücretsiz kargolu.`;
+  }
+
   function renderList() {
     const mode = document.getElementById("sort").value;
-    let items = [...PRODUCTS];
+    let items = PRODUCTS.filter(p => !activeCat || p.category === activeCat);
     if (mode === "price-asc") items.sort((a, b) => a.price - b.price);
     if (mode === "price-desc") items.sort((a, b) => b.price - a.price);
     if (mode === "discount") items.sort((a, b) => (1 - b.price / b.listPrice) - (1 - a.price / a.listPrice));

@@ -59,13 +59,14 @@ function renderChrome(active) {
       <button class="burger" onclick="document.querySelector('nav.main').classList.toggle('open')">${icon("menu", 24)}</button>
       <nav class="main">
         <a href="index.html" ${active === "home" ? 'class="active"' : ""}>Ana Sayfa</a>
-        <a href="urunler.html" ${active === "products" ? 'class="active"' : ""}>Ürünler</a>
+        <a href="urunler.html" id="nav-urunler" class="has-caret ${active === "products" ? "active" : ""}">Ürünler ${icon("chevron", 15)}</a>
         <a href="hakkimizda.html" ${active === "about" ? 'class="active"' : ""}>Hakkımızda</a>
         <a href="sss.html" ${active === "faq" ? 'class="active"' : ""}>S.S.S.</a>
         <a href="iletisim.html" ${active === "contact" ? 'class="active"' : ""}>İletişim</a>
       </nav>
       <a href="sepet.html"><button class="cart-btn">${icon("cart", 18)} <span class="lbl">Sepet</span><span class="cart-count">0</span></button></a>
     </div>
+    ${buildMega()}
   </header>`;
 
   const footer = `
@@ -105,6 +106,77 @@ function renderChrome(active) {
   document.body.insertAdjacentHTML("beforeend", footer);
   updateCartBadge();
   applyContent(document);
+  attachMega();
+}
+
+/* ---------------- mega menü (kategoriler + görseller) ---------------- */
+function megaGroups() {
+  const g = {};
+  PRODUCTS.forEach(p => { const c = p.category || "Diğer"; (g[c] = g[c] || []).push(p); });
+  return g;
+}
+function buildMega() {
+  const g = megaGroups();
+  const cats = Object.keys(g);
+  if (!cats.length) return "";
+  const catList = cats.map((c, i) => `
+    <a class="mega-cat ${i === 0 ? "active" : ""}" data-cat="${encodeURIComponent(c)}" href="urunler.html?cat=${encodeURIComponent(c)}">
+      <span>${c}</span><small>${g[c].length} ürün ${icon("arrowRight", 14)}</small>
+    </a>`).join("") +
+    `<a class="mega-cat all" href="urunler.html"><span>Tüm Ürünler</span><small>${PRODUCTS.length} ürün ${icon("arrowRight", 14)}</small></a>`;
+  return `
+  <div class="mega" id="mega">
+    <div class="mega-inner">
+      <div class="mega-cats" id="mega-cats">${catList}</div>
+      <div class="mega-preview" id="mega-preview"></div>
+    </div>
+  </div>`;
+}
+function megaPreview(cat) {
+  const g = megaGroups();
+  const items = g[cat] || [];
+  const box = document.getElementById("mega-preview");
+  if (!box) return;
+  box.innerHTML = `
+    <div class="mega-head"><b>${cat}</b>
+      <a href="urunler.html?cat=${encodeURIComponent(cat)}">Kategoriyi Gör ${icon("arrowRight", 13)}</a></div>
+    <div class="mega-grid">
+      ${items.slice(0, 4).map(p => `
+        <a class="mega-prod" href="urun.html?id=${p.id}">
+          <div class="mega-thumb"><img src="${p.images[0]}" alt="${p.name}" loading="lazy"></div>
+          <div class="mega-info"><b>${p.name}</b><span>${p.color} • ${fmtPrice(p.price)}</span></div>
+        </a>`).join("")}
+    </div>`;
+}
+function attachMega() {
+  const trigger = document.getElementById("nav-urunler");
+  const mega = document.getElementById("mega");
+  if (!trigger || !mega) return;
+  const header = document.querySelector("header.site");
+  const placeMega = () => { mega.style.top = header.offsetHeight + "px"; };
+  placeMega();
+  window.addEventListener("resize", placeMega);
+  const cats = Object.keys(megaGroups());
+  if (cats.length) megaPreview(cats[0]);
+  let t;
+  const open = () => {
+    clearTimeout(t); placeMega(); mega.classList.add("open");
+    mega.style.opacity = "1"; mega.style.visibility = "visible"; mega.style.transform = "translateY(0)"; mega.style.pointerEvents = "auto";
+  };
+  const close = () => {
+    t = setTimeout(() => {
+      mega.classList.remove("open");
+      mega.style.opacity = "0"; mega.style.visibility = "hidden"; mega.style.transform = "translateY(-8px)"; mega.style.pointerEvents = "none";
+    }, 160);
+  };
+  [trigger, mega].forEach(el => { el.addEventListener("mouseenter", open); el.addEventListener("mouseleave", close); });
+  mega.querySelectorAll(".mega-cat[data-cat]").forEach(a => {
+    a.addEventListener("mouseenter", () => {
+      mega.querySelectorAll(".mega-cat").forEach(x => x.classList.remove("active"));
+      a.classList.add("active");
+      megaPreview(decodeURIComponent(a.dataset.cat));
+    });
+  });
 }
 
 /* ---------------- ürün kartı ---------------- */

@@ -6,7 +6,7 @@
   <title>MONTIVA — Demonte Mobilya | Kur. Kullan. Keyfini çıkar.</title>
   <meta name="description" content="Demonte kahve köşesi ve mutfak mobilyaları. 3D önizleme, AR ile evinde gör, kolay montaj, PDF kılavuz, ücretsiz kargo.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
   <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 </head>
@@ -49,7 +49,7 @@
   <section class="block ar-spot reveal" id="ar">
     <div class="container">
       <div class="wrap">
-        <model-viewer src="assets/models/capella-siyah.glb" ios-src="assets/models/capella-siyah.usdz"
+        <model-viewer id="ar-spot-mv"
           alt="AR ile evinde gör" camera-controls auto-rotate auto-rotate-delay="0"
           rotation-per-second="18deg" touch-action="pan-y" shadow-intensity="1.1" exposure="1.1"
           camera-orbit="30deg 75deg auto" ar ar-modes="webxr scene-viewer quick-look" ar-scale="fixed"
@@ -110,6 +110,11 @@
 <script>
   renderChrome("home");
   const H = CONTENT.home;
+
+  // ana sayfa "Evinde Gör" 3D modeli — admin'den seçilen ürün
+  const arProd = getProduct(SITE.arSpotProduct) || PRODUCTS[0];
+  const arMv = document.getElementById("ar-spot-mv");
+  if (arMv && arProd) { arMv.setAttribute("src", arProd.model); if (arProd.usdzModel) arMv.setAttribute("ios-src", arProd.usdzModel); }
 
   document.getElementById("hero-eyebrow").innerHTML = icon("zap", 15) + " " + H.heroEyebrow;
   document.getElementById("hero-actions").innerHTML =
