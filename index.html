@@ -45,6 +45,32 @@
     </div>
   </section>
 
+  <!-- KAMPANYA BANNER -->
+  <section class="block reveal" style="padding-top:0">
+    <div class="container">
+      <div class="campaign-card">
+        <div class="campaign-media"><img src="assets/img/capella-siyah-1.webp" alt="Kampanya"></div>
+        <div class="campaign-body">
+          <div class="campaign-ribbon">FIRSAT · FIRSAT · FIRSAT · FIRSAT</div>
+          <div class="campaign-badge" id="camp-badge"></div>
+          <div class="lead-lbl">Mevcut %20 İndirime<br><b>Ek Fırsat:</b></div>
+          <div class="tier">
+            <span class="cond">7.500 TL ve üzeri alışverişe</span>
+            <span class="val">ek %10</span>
+          </div>
+          <div class="tier-div"></div>
+          <div class="tier">
+            <span class="cond">12.500 TL ve üzeri alışverişe</span>
+            <span class="val">ek %20</span>
+          </div>
+          <a href="urunler.html" class="btn btn-primary">Ek İndirim Fırsatı</a>
+          <a href="urunler.html" class="campaign-more" id="camp-more">Fırsatları Kaçırma</a>
+        </div>
+        <div class="campaign-trust" id="camp-trust"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- AR VİTRİN -->
   <section class="block ar-spot reveal" id="ar">
     <div class="container">
@@ -125,6 +151,13 @@
   document.getElementById("ar-cta").innerHTML = `Ürünlerde Dene ${icon("arrowRight", 18)}`;
   document.getElementById("ar-spot-btn").innerHTML = `${icon("mobile", 18)} Evimde Gör (AR)`;
   document.getElementById("cta-chat").innerHTML = `${icon("bot", 18)} ${H.ctaButton}`;
+
+  // kampanya banner ikonları
+  document.getElementById("camp-badge").innerHTML = icon("percent", 44);
+  document.getElementById("camp-more").innerHTML = `Fırsatları Kaçırma ${icon("arrowRight", 15)}`;
+  document.getElementById("camp-trust").innerHTML = [
+    { i: "truck", t: "Hızlı Kargo" }, { i: "shield", t: "Güvenli Alışveriş" }, { i: "return", t: "Kolay İade" }
+  ].map(x => `<div>${icon(x.i, 20)} ${x.t}</div>`).join("");
 
   document.getElementById("home-products").innerHTML = PRODUCTS.map(productCardHTML).join("");
   document.getElementById("home-features").innerHTML = H.features.map(f =>
