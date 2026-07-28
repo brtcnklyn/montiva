@@ -15,7 +15,7 @@
 <main>
   <!-- HERO -->
   <div class="hero">
-    <div class="hero-bg"><img src="assets/img/capella-siyah-1.webp" alt="MONTIVA kahve köşesi"></div>
+    <div class="hero-bg"><img id="hero-bg-img" src="assets/img/hero-bg.svg" alt="MONTIVA"></div>
     <div class="container">
       <div class="hero-copy">
         <span class="eyebrow" id="hero-eyebrow"></span>
@@ -118,6 +118,9 @@
 <script>
   renderChrome("home");
   const H = CONTENT.home;
+
+  // hero arka plan görseli — admin'den seçilebilir
+  if (SITE.heroImage) document.getElementById("hero-bg-img").src = SITE.heroImage;
 
   // ana sayfa "Evinde Gör" 3D modeli — admin'den seçilen ürün
   const arProd = getProduct(SITE.arSpotProduct) || PRODUCTS[0];

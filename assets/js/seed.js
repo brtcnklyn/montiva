@@ -10,6 +10,7 @@ const DEFAULT_SITE = {
   freeShippingLimit: 500,
   currency: "₺",
   adminPass: "montiva2026",
+  heroImage: "assets/img/hero-bg.svg",
   arSpotProduct: "capella-siyah",
   arBase: "https://brtcnklyn.github.io/montiva"
 };

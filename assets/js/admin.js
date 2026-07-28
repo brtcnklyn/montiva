@@ -22,6 +22,19 @@
     r.readAsDataURL(file);
   }
 
+  // hero arka plan görseli seç
+  function onHeroFile() {
+    const f = document.getElementById("s-heroimg-file").files[0];
+    if (!f) return;
+    if (f.size > 4 * 1024 * 1024) { toast("⚠️ Görsel çok büyük (~4MB üzeri). Daha küçük bir görsel seçin."); return; }
+    const r = new FileReader();
+    r.onload = () => {
+      document.getElementById("s-heroimg").value = r.result;
+      document.getElementById("s-heroimg-name").textContent = f.name + " ✓ (kaydedince uygulanır)";
+    };
+    r.readAsDataURL(f);
+  }
+
   /* ================= GİRİŞ ================= */
   function isAuthed() { return sessionStorage.getItem(AUTH_KEY) === "1"; }
   function renderLogin(err) {
@@ -433,6 +446,15 @@
         <div class="cfield"><label>Genel AR/QR Adresi (site yayına alınınca kendi alan adınız)</label><input id="s-arbase" value="${esc(s.arBase || "")}" placeholder="https://siteniz.com"></div>
       </div>
       <div class="panel">
+        <h2>Hero Arka Plan Görseli</h2><div class="desc">Ana sayfanın en üst bölümünün arka planı. Kendi tasarımınızı/görselinizi masaüstünden yükleyin (yatay/geniş görsel önerilir).</div>
+        <div class="upload-row">
+          <input type="file" id="s-heroimg-file" accept="image/*,.svg" style="display:none" onchange="ADMIN.onHeroFile()">
+          <button type="button" class="btn-sm btn-save" onclick="document.getElementById('s-heroimg-file').click()">${icon("upload", 15)} Görsel Yükle</button>
+          <span class="upload-name" id="s-heroimg-name">${s.heroImage ? "Mevcut görsel yüklü" : "Görsel seçilmedi"}</span>
+        </div>
+        <input id="s-heroimg" value="${esc(s.heroImage || "")}" placeholder="veya görsel yolu / URL yapıştır" style="margin-top:8px;font-size:.82rem">
+      </div>
+      <div class="panel">
         <h2>Ana Sayfa 3D / AR Vitrini</h2><div class="desc">Ana sayfadaki "Almadan önce evinde gör" bölümünde hangi ürünün 3D modeli dönsün?</div>
         <div class="cfield"><label>Gösterilecek Ürün</label>
           <select id="s-arprod">${DB.products().map(p => `<option value="${esc(p.id)}" ${s.arSpotProduct === p.id ? "selected" : ""}>${esc(p.name)} — ${esc(p.color)}</option>`).join("")}</select>
@@ -455,7 +477,10 @@
     s.freeShippingLimit = parseInt(g("s-ship")) || 0; s.adminPass = g("s-pass").trim() || "montiva2026";
     s.arBase = g("s-arbase").trim();
     s.arSpotProduct = g("s-arprod");
-    DB.saveSite(s); SITE = DB.site(); toast("✅ Ayarlar kaydedildi"); renderApp();
+    s.heroImage = g("s-heroimg").trim() || "assets/img/hero-bg.svg";
+    try { DB.saveSite(s); }
+    catch (e) { toast("⚠️ Kayıt alanı doldu — yüklediğiniz görsel çok büyük olabilir."); return; }
+    SITE = DB.site(); toast("✅ Ayarlar kaydedildi"); renderApp();
   }
   function resetAll() {
     if (!confirm("Tüm ürün, metin ve ayarlar başlangıç durumuna dönecek. Emin misiniz?")) return;
@@ -476,7 +501,7 @@
   function boot() { if (isAuthed()) renderApp(); else renderLogin(); }
   window.ADMIN = {
     go: switchView, newProduct, deleteProduct, editProduct, applyProduct, saveProducts,
-    viewOrder, saveOrderStatus, saveContent, saveSettings, resetAll, closeModal, onModelFile
+    viewOrder, saveOrderStatus, saveContent, saveSettings, resetAll, closeModal, onModelFile, onHeroFile
   };
   boot();
 })();
