@@ -15,18 +15,18 @@
 <main>
   <!-- HERO -->
   <div class="hero">
-    <div class="hero-bg"><img id="hero-bg-img" src="assets/img/hero-bg.svg" alt="MONTIVA"></div>
+    <div class="hero-bg"><img id="hero-bg-img" src="assets/img/urun/lumen-koleksiyon.webp" alt="MONTIVA koleksiyonu" fetchpriority="high"></div>
     <div class="container">
       <div class="hero-copy">
         <span class="eyebrow" id="hero-eyebrow"></span>
-        <h1><span data-content="home.heroTitle1"></span> <span data-content="home.heroHighlight"></span>,<br><span data-content="home.heroTitle2"></span></h1>
+        <h1><span data-content="home.heroTitle1"></span> <span data-content="home.heroHighlight"></span><span id="hero-t2"></span></h1>
         <p class="lead" data-content="home.heroLead"></p>
         <div class="actions" id="hero-actions"></div>
         <div class="hero-stats" id="hero-stats"></div>
       </div>
       <div class="hero-promo">
         <span class="hp-ribbon">Fırsat</span>
-        <div class="hp-title">Mevcut %20 indirime <b>Ek Fırsat!</b></div>
+        <div class="hp-title">Mevcut indirime <b>Ek Fırsat!</b></div>
         <div class="hp-tier"><span>7.500 TL ve üzeri</span><b>ek %10</b></div>
         <div class="hp-tier"><span>12.500 TL ve üzeri</span><b>ek %20</b></div>
         <a href="urunler.html" class="btn btn-primary" id="hp-btn">İndirimi Yakala</a>
@@ -34,6 +34,9 @@
       </div>
     </div>
   </div>
+
+  <!-- PASTEL PALET ŞERİDİ -->
+  <div class="palette-strip" id="palette-strip"></div>
 
   <!-- GÜVEN ŞERİDİ -->
   <div class="trust-strip"><div class="trust-track" id="trust-track"></div></div>
@@ -120,14 +123,19 @@
   const H = CONTENT.home;
 
   // hero arka plan görseli — admin'den seçilebilir
-  if (SITE.heroImage) document.getElementById("hero-bg-img").src = SITE.heroImage;
+  // yalnızca admin farklı bir görsel seçtiyse değiştir (gereksiz yeniden yükleme / titreme olmasın)
+  (() => {
+    const el = document.getElementById("hero-bg-img");
+    if (SITE.heroImage && !el.getAttribute("src").endsWith(SITE.heroImage)) el.src = SITE.heroImage;
+  })();
 
   // ana sayfa "Evinde Gör" 3D modeli — admin'den seçilen ürün
   const arProd = getProduct(SITE.arSpotProduct) || PRODUCTS[0];
   const arMv = document.getElementById("ar-spot-mv");
   if (arMv && arProd) { arMv.setAttribute("src", arProd.model); if (arProd.usdzModel) arMv.setAttribute("ios-src", arProd.usdzModel); }
 
-  document.getElementById("hero-eyebrow").innerHTML = icon("zap", 15) + " " + H.heroEyebrow;
+  document.getElementById("hero-eyebrow").innerHTML = icon("sparkle", 15) + " " + H.heroEyebrow;
+  document.getElementById("hero-t2").innerHTML = H.heroTitle2 ? ",<br>" + H.heroTitle2 : "";
   document.getElementById("hero-actions").innerHTML =
     `<a href="urunler.html" class="btn btn-primary">${H.cta1} ${icon("arrowRight", 18)}</a>
      <a href="#ar" class="btn btn-ghost">${icon("scan", 18)} Almadan Önce Evinde Gör</a>`;
@@ -137,8 +145,14 @@
   document.getElementById("ar-spot-btn").innerHTML = `${icon("mobile", 18)} Evimde Gör (AR)`;
   document.getElementById("cta-chat").innerHTML = `${icon("bot", 18)} ${H.ctaButton}`;
   document.getElementById("hp-btn").innerHTML = `İndirimi Yakala ${icon("arrowRight", 17)}`;
+  document.getElementById("palette-strip").innerHTML =
+    ["#94A98B", "#A8D5BA", "#8FB4D9", "#E5C46B", "#E0937A", "#B9A5DC"]
+      .map(c => `<i style="background:${c}"></i>`).join("");
 
-  document.getElementById("home-products").innerHTML = PRODUCTS.map(productCardHTML).join("");
+  // her ürün ailesinden bir temsilci göster
+  const seenFam = new Set();
+  const featured = PRODUCTS.filter(p => { if (seenFam.has(p.name)) return false; seenFam.add(p.name); return true; }).slice(0, 8);
+  document.getElementById("home-products").innerHTML = featured.map(productCardHTML).join("");
   document.getElementById("home-features").innerHTML = H.features.map(f =>
     `<div class="feature"><div class="ic">${iconOrRaw(f.i, 22)}</div><div><b>${f.t}</b><span>${f.d}</span></div></div>`).join("");
   document.getElementById("home-steps").innerHTML = H.steps.map(s => `<div class="step"><b>${s.t}</b><span>${s.d}</span></div>`).join("");

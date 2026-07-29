@@ -181,22 +181,28 @@ function attachMega() {
 
 /* ---------------- ürün kartı ---------------- */
 function productCardHTML(p) {
-  const disc = Math.round((1 - p.price / p.listPrice) * 100);
-  const isMint = /mint/i.test(p.color);
+  const disc = p.listPrice > p.price ? Math.round((1 - p.price / p.listPrice) * 100) : 0;
   const out = p.stock <= 0;
   const low = p.stock > 0 && p.stock <= 5;
+  // aynı ürün ailesinin diğer renkleri
+  const fam = PRODUCTS.filter(x => x.name === p.name);
+  const others = fam.filter(x => x.id !== p.id).slice(0, 5);
+  const moreCount = fam.length - 1 - others.length;
   return `
   <article class="card">
-    ${p.badge ? `<span class="badge ${isMint ? "mint" : ""}">${p.badge}</span>` : ""}
+    ${p.badge ? `<span class="badge">${p.badge}</span>` : ""}
     <span class="chip-3d">${icon("cube", 13)} 3D</span>
     <a class="imgwrap" href="urun.html?id=${p.id}"><img src="${p.images[0]}" alt="${p.name} ${p.color}" loading="lazy"></a>
     <div class="body">
-      <span class="color">${p.color}</span>
+      <span class="color">${p.hex ? `<i class="cdot" style="background:${p.hex}"></i>` : ""}${p.color}</span>
       <h3><a href="urun.html?id=${p.id}">${p.name}</a></h3>
+      ${fam.length > 1 ? `<div class="colorways">
+        ${others.map(v => `<a href="urun.html?id=${v.id}" title="${v.color}" style="background:${v.hex || "#ccc"}"></a>`).join("")}
+        ${moreCount > 0 ? `<span>+${moreCount}</span>` : ""}
+      </div>` : ""}
       <div class="prices">
         <span class="price">${fmtPrice(p.price)}</span>
-        <span class="old-price">${fmtPrice(p.listPrice)}</span>
-        <span class="discount-tag">%${disc}</span>
+        ${disc ? `<span class="old-price">${fmtPrice(p.listPrice)}</span><span class="discount-tag">%${disc}</span>` : ""}
       </div>
       ${out ? `<span class="stock-mini low">Stokta yok</span>` : low ? `<span class="stock-mini low">Son ${p.stock} adet!</span>` : `<span class="stock-mini ok">Stokta</span>`}
       <button class="add" ${out ? "disabled" : ""} onclick="addToCart('${p.id}')">${out ? "Stokta Yok" : icon("cart", 17) + " Sepete Ekle"}</button>

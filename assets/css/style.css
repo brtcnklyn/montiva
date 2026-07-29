@@ -5,32 +5,41 @@
    ============================================================ */
 :root {
   --bg:        #FFFFFF;
-  --bg-2:      #F6F3EE;   /* sıcak kum tonu — bölüm zebrası */
-  --bg-3:      #10131A;   /* koyu bölümler */
+  --bg-2:      #F4F6F1;   /* pastel yeşile çalan yumuşak zemin */
+  --bg-3:      #2C3A33;   /* koyu yeşil-gri bölümler */
   --surface:   #FFFFFF;
-  --ink:       #14181F;   /* neredeyse siyah başlık */
-  --ink-2:     #3C434E;
-  --muted:     #7C838F;
-  --line:      #EAE7E0;   /* sıcak kılcal çizgi */
-  --line-2:    #DBD7CE;
+  --ink:       #22302A;   /* koyu yeşil-siyah başlık */
+  --ink-2:     #47554E;
+  --muted:     #808C86;
+  --line:      #E6EBE3;
+  --line-2:    #D4DCD0;
 
-  --primary:   #14508C;   /* güvenli koyu mavi */
-  --primary-600:#0F3E6E;
-  --primary-700:#0B2F55;
-  --primary-050:#EEF3F9;
-  --primary-100:#D6E2F0;
+  --primary:   #5E8A6B;   /* pastel adaçayı yeşili (marka) */
+  --primary-600:#4C7458;
+  --primary-700:#3B5C45;
+  --primary-050:#EDF3EE;
+  --primary-100:#D8E5DB;
 
-  --accent:    #C0824B;   /* sıcak karamel — ikincil CTA */
-  --accent-600:#A46A38;
-  --accent-050:#F7EFE5;
+  --accent:    #E0A03C;   /* pastel hardal sarısı */
+  --accent-600:#C4862A;
+  --accent-050:#FBF2DF;
+
+  /* pastel palet — bölüm/kategori aksanları */
+  --p-green:   #94A98B; --p-green-050:  #EDF2EA;
+  --p-blue:    #8FB4D9; --p-blue-050:   #E9F1F8;
+  --p-yellow:  #E5C46B; --p-yellow-050: #FBF4E1;
+  --p-orange:  #E0937A; --p-orange-050: #FBEDE7;
+  --p-purple:  #B9A5DC; --p-purple-050: #F1ECF9;
+  --p-mint:    #A8D5BA; --p-mint-050:   #E9F7EF;
+
   /* eski değişken adları (uyumluluk) */
-  --mint:      #C0824B; --mint-600: #A46A38; --mint-050: #F7EFE5;
-  --lav: #D6E2F0; --sky: #EEF3F9; --peach: #F7EFE5;
+  --mint:      #E0937A; --mint-600: #C97C61; --mint-050: #FBEDE7;
+  --lav: #B9A5DC; --sky: #8FB4D9; --peach: #FBEDE7;
 
-  --gold:      #C79A3E;
-  --green:     #2E7D57; --green-050: #EAF3EE;
-  --amber:     #B67A2E; --amber-050: #F7EFE1;
-  --red:       #B23B32;
+  --gold:      #E0A03C;
+  --green:     #4C8A63; --green-050: #EAF4EE;
+  --amber:     #C4862A; --amber-050: #FBF2DF;
+  --red:       #C4635A;
 
   --radius:    9px;
   --radius-sm: 6px;
@@ -115,11 +124,11 @@ nav.main a.has-caret .ic-svg { transition: transform .2s; }
 .btn .ic-svg { vertical-align: -.2em; }
 
 /* ---------- hero ---------- */
-.hero { position: relative; overflow: hidden; background: var(--primary-700); }
+.hero { position: relative; overflow: hidden; background: var(--bg-2); }
 .hero-bg { position: absolute; inset: 0; z-index: 0; }
 .hero-bg img { width: 100%; height: 100%; object-fit: cover; object-position: 65% 45%; }
 .hero-bg::after { content: ""; position: absolute; inset: 0;
-  background: linear-gradient(90deg, rgba(10,30,55,.55) 0%, rgba(10,30,55,.22) 34%, rgba(10,30,55,.05) 56%, transparent 72%); }
+  background: linear-gradient(92deg, rgba(255,255,255,.97) 0%, rgba(255,255,255,.93) 26%, rgba(255,255,255,.78) 44%, rgba(255,255,255,.35) 62%, rgba(255,255,255,.05) 80%, transparent 100%); }
 .hero .container { position: relative; z-index: 2; display: grid; grid-template-columns: 1.12fr .88fr; gap: 52px; align-items: center; padding: 86px 0 92px; }
 .hero-copy { max-width: 640px; }
 
@@ -134,16 +143,25 @@ nav.main a.has-caret .ic-svg { transition: transform .2s; }
 .hp-tier b { font-size: 1.8rem; color: var(--primary); font-weight: 900; letter-spacing: -.03em; white-space: nowrap; }
 .hero-promo .btn { width: 100%; margin-top: 20px; }
 .hero-promo .hp-note { text-align: center; font-size: .72rem; color: var(--muted); margin-top: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
-.eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: .72rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: #EBB877; margin-bottom: 24px; }
-.hero h1 { font-size: clamp(2.4rem, 5.2vw, 4.2rem); line-height: 1.04; font-weight: 900; color: #fff; letter-spacing: -.03em; }
-.hero h1 span { color: #fff; }
-.hero p.lead { color: #CFD6E0; font-size: 1.12rem; margin: 24px 0 34px; max-width: 50ch; }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: .72rem; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: var(--primary-700);
+  background: #fff; border: 1px solid var(--line-2); padding: 8px 16px; border-radius: 999px; margin-bottom: 24px; box-shadow: var(--shadow-xs); }
+.hero h1 { font-size: clamp(2.3rem, 5vw, 4rem); line-height: 1.05; font-weight: 900; color: var(--ink); letter-spacing: -.03em; }
+.hero h1 span { color: var(--primary); }
+.hero p.lead { color: var(--ink-2); font-size: 1.1rem; margin: 24px 0 34px; max-width: 50ch; }
 .hero .actions { display: flex; gap: 14px; flex-wrap: wrap; }
-.hero .btn-ghost { background: rgba(255,255,255,.08); color: #fff; border-color: rgba(255,255,255,.28); }
-.hero .btn-ghost:hover { background: rgba(255,255,255,.16); border-color: #fff; }
-.hero-stats { display: flex; gap: 44px; margin-top: 48px; flex-wrap: wrap; }
-.hero-stats div b { display: block; font-size: 1.9rem; font-weight: 800; color: #fff; letter-spacing: -.02em; }
-.hero-stats div span { font-size: .78rem; color: #9FA9B8; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
+.hero .btn-ghost { background: #fff; color: var(--ink); border-color: var(--line-2); }
+.hero .btn-ghost:hover { border-color: var(--ink); }
+.hero-stats { display: flex; gap: 40px; margin-top: 46px; flex-wrap: wrap; }
+.hero-stats div b { display: block; font-size: 1.9rem; font-weight: 900; color: var(--ink); letter-spacing: -.02em; }
+.hero-stats div:nth-child(1) b { color: var(--primary); }
+.hero-stats div:nth-child(2) b { color: #C97C61; }
+.hero-stats div:nth-child(3) b { color: #9179C4; }
+.hero-stats div:nth-child(4) b { color: #4E8FC0; }
+.hero-stats div span { font-size: .76rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+
+/* renkli palet şeridi */
+.palette-strip { display: flex; height: 6px; }
+.palette-strip i { flex: 1; }
 
 /* ---------- güven şeridi ---------- */
 .trust-strip { background: var(--surface); border-bottom: 1px solid var(--line); overflow: hidden; }
@@ -195,7 +213,13 @@ section.block { padding: 90px 0; }
 .badge.mint { background: var(--accent); }
 .chip-3d { position: absolute; top: 14px; right: 14px; z-index: 2; background: rgba(255,255,255,.94); color: var(--ink); font-size: .62rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 5px 8px; border-radius: 4px; display: flex; gap: 4px; align-items: center; border: 1px solid var(--line); }
 .card .body { padding: 20px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
-.card .color { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .12em; font-weight: 700; }
+.card .color { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .12em; font-weight: 700; display: flex; align-items: center; gap: 7px; }
+.card .color .cdot { width: 13px; height: 13px; border-radius: 50%; border: 1px solid rgba(0,0,0,.12); flex: none; }
+/* kartta diğer renk seçenekleri */
+.card .colorways { display: flex; gap: 5px; align-items: center; padding-top: 2px; }
+.card .colorways a { width: 17px; height: 17px; border-radius: 50%; border: 1.5px solid #fff; box-shadow: 0 0 0 1px var(--line-2); transition: .15s; }
+.card .colorways a:hover { transform: scale(1.18); box-shadow: 0 0 0 1.5px var(--ink); }
+.card .colorways span { font-size: .68rem; color: var(--muted); font-weight: 700; margin-left: 2px; }
 .card h3 { font-size: 1.04rem; font-weight: 700; line-height: 1.3; letter-spacing: -.01em; }
 .card h3 a:hover { color: var(--primary); }
 .prices { display: flex; align-items: baseline; gap: 10px; margin-top: auto; padding-top: 10px; flex-wrap: wrap; }
@@ -263,8 +287,24 @@ section.block { padding: 90px 0; }
 .media-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
 .media-tabs button { background: #fff; border: 1.5px solid var(--line); color: var(--ink-2); padding: 9px 17px; border-radius: 7px; font-weight: 700; font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; transition: .15s; display: flex; align-items: center; gap: 7px; }
 .media-tabs button.active { border-color: var(--ink); color: var(--ink); }
-.gallery .main-img { border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); background: var(--bg-2); cursor: zoom-in; }
-.gallery .main-img img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+.gallery .main-img { position: relative; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); background: var(--bg-2); cursor: zoom-in; }
+.gallery .main-img img { width: 100%; aspect-ratio: 1; object-fit: cover; transition: transform .25s ease; transform-origin: center center; will-change: transform; }
+.gallery .main-img.zooming img { transform: scale(2.1); transition: transform .12s ease-out; }
+.zoom-hint { position: absolute; right: 14px; top: 14px; z-index: 3; background: rgba(255,255,255,.94); border: 1px solid var(--line);
+  color: var(--ink-2); font-size: .72rem; font-weight: 700; padding: 7px 12px; border-radius: 999px; display: flex; align-items: center; gap: 6px;
+  pointer-events: none; transition: opacity .2s; }
+.gallery .main-img.zooming .zoom-hint { opacity: 0; }
+
+/* tam ekran görsel (lightbox) */
+.lightbox { position: fixed; inset: 0; background: rgba(20,24,31,.92); z-index: 2100; display: none; align-items: center; justify-content: center; padding: 30px; }
+.lightbox.show { display: flex; animation: fadeIn .2s; }
+.lightbox img { max-width: 92vw; max-height: 88vh; object-fit: contain; border-radius: 10px; }
+.lightbox .lb-close { position: absolute; top: 22px; right: 26px; background: rgba(255,255,255,.14); border: none; color: #fff; width: 42px; height: 42px; border-radius: 10px; display: grid; place-items: center; }
+.lightbox .lb-close:hover { background: rgba(255,255,255,.26); }
+.lightbox .lb-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,.14); border: none; color: #fff; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; }
+.lightbox .lb-nav:hover { background: rgba(255,255,255,.28); }
+.lightbox .lb-prev { left: 22px; } .lightbox .lb-next { right: 22px; }
+.lightbox .lb-count { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); color: #fff; font-size: .84rem; font-weight: 600; opacity: .8; }
 .media-3d { display: none; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); background: #fff; position: relative; }
 .media-3d.show { display: block; }
 .gallery.show-3d .main-img { display: none; }

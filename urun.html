@@ -46,7 +46,7 @@
 
   // renk varyantları (aynı ürün ailesi) + yorumlar
   const variants = PRODUCTS.filter(x => x.name === p.name);
-  const colorHex = c => /mint/i.test(c) ? "#8FD3C0" : /siyah|black|metal/i.test(c) ? "#22262e" : /beyaz|white/i.test(c) ? "#eee" : /gold|altın/i.test(c) ? "#caa96a" : "#c9c9c9";
+  const colorHex = v => v.hex || "#c9c9c9";
   const revs = getReviews(p.id);
   const avg = revs.length ? (revs.reduce((s, r) => s + r.r, 0) / revs.length).toFixed(1) : "0";
 
@@ -58,7 +58,10 @@
           <button class="active" id="tab-photo" onclick="showMedia('photo')">${icon("image", 17)} Fotoğraflar</button>
           <button id="tab-3d" onclick="showMedia('3d')">${icon("cube", 17)} 3D & Evimde Gör</button>
         </div>
-        <div class="main-img" id="mainImgWrap"><img id="mainImg" src="${p.images[0]}" alt="${p.name}"></div>
+        <div class="main-img" id="mainImgWrap">
+          <span class="zoom-hint" id="zoomHint"></span>
+          <img id="mainImg" src="${p.images[0]}" alt="${p.name}">
+        </div>
         <div class="media-3d" id="media3d">
           <span class="badge3d">${icon("cube", 14)} Canlı 3D</span>
           <model-viewer id="mv" src="${p.model}" ios-src="${p.usdzModel}" alt="${p.name} 3D modeli"
@@ -85,7 +88,7 @@
         ${variants.length > 1 ? `<div class="variant-picker">
           <div class="vlabel">Renk: <b>${p.color}</b></div>
           <div class="swatches">
-            ${variants.map(v => `<a class="swatch ${v.id === p.id ? "active" : ""} ${v.stock <= 0 ? "out" : ""}" href="urun.html?id=${v.id}"><span class="dot" style="background:${colorHex(v.color)}"></span>${v.color}</a>`).join("")}
+            ${variants.map(v => `<a class="swatch ${v.id === p.id ? "active" : ""} ${v.stock <= 0 ? "out" : ""}" href="urun.html?id=${v.id}"><span class="dot" style="background:${colorHex(v)}"></span>${v.color}</a>`).join("")}
           </div>
         </div>` : ""}
         <div class="pdp-prices">
@@ -170,6 +173,65 @@
     document.querySelectorAll(".thumbs img").forEach(t => t.classList.remove("active"));
     el.classList.add("active"); showMedia("photo");
   }
+
+  /* ---------- görsel yakınlaştırma (hover) + tam ekran ---------- */
+  (function initZoom() {
+    const wrap = document.getElementById("mainImgWrap");
+    const img = document.getElementById("mainImg");
+    const hint = document.getElementById("zoomHint");
+    if (!wrap || !img) return;
+    hint.innerHTML = icon("search", 14) + " Yakınlaştırmak için üzerine gel";
+
+    const move = e => {
+      const r = wrap.getBoundingClientRect();
+      const x = ((e.clientX - r.left) / r.width) * 100;
+      const y = ((e.clientY - r.top) / r.height) * 100;
+      img.style.transformOrigin = `${Math.max(0, Math.min(100, x))}% ${Math.max(0, Math.min(100, y))}%`;
+    };
+    wrap.addEventListener("mouseenter", () => wrap.classList.add("zooming"));
+    wrap.addEventListener("mousemove", move);
+    wrap.addEventListener("mouseleave", () => {
+      wrap.classList.remove("zooming");
+      img.style.transformOrigin = "center center";
+    });
+    wrap.addEventListener("click", () => openLightbox(p.images.indexOf(img.getAttribute("src"))));
+  })();
+
+  let lbIndex = 0;
+  function openLightbox(i) {
+    lbIndex = i < 0 ? 0 : i;
+    let lb = document.getElementById("lightbox");
+    if (!lb) {
+      lb = document.createElement("div");
+      lb.id = "lightbox"; lb.className = "lightbox";
+      lb.innerHTML = `
+        <button class="lb-close" onclick="closeLightbox()">${icon("close", 20)}</button>
+        <button class="lb-nav lb-prev" onclick="event.stopPropagation();lbStep(-1)">${icon("chevron", 22)}</button>
+        <img id="lbImg" alt="">
+        <button class="lb-nav lb-next" onclick="event.stopPropagation();lbStep(1)">${icon("chevron", 22)}</button>
+        <span class="lb-count" id="lbCount"></span>`;
+      document.body.appendChild(lb);
+      lb.addEventListener("click", e => { if (e.target === lb) closeLightbox(); });
+      lb.querySelector(".lb-prev").style.transform = "translateY(-50%) rotate(90deg)";
+      lb.querySelector(".lb-next").style.transform = "translateY(-50%) rotate(-90deg)";
+      document.addEventListener("keydown", e => {
+        if (!document.getElementById("lightbox").classList.contains("show")) return;
+        if (e.key === "Escape") closeLightbox();
+        if (e.key === "ArrowLeft") lbStep(-1);
+        if (e.key === "ArrowRight") lbStep(1);
+      });
+    }
+    lbRender(); lb.classList.add("show");
+  }
+  function lbRender() {
+    document.getElementById("lbImg").src = p.images[lbIndex];
+    document.getElementById("lbCount").textContent = `${lbIndex + 1} / ${p.images.length}`;
+    const multi = p.images.length > 1;
+    document.querySelector(".lb-prev").style.display = multi ? "grid" : "none";
+    document.querySelector(".lb-next").style.display = multi ? "grid" : "none";
+  }
+  function lbStep(d) { lbIndex = (lbIndex + d + p.images.length) % p.images.length; lbRender(); }
+  function closeLightbox() { const lb = document.getElementById("lightbox"); if (lb) lb.classList.remove("show"); }
   function chgQty(d) { const el = document.getElementById("qty"); el.value = Math.max(1, Math.min(p.stock || 1, parseInt(el.value) + d)); }
   function showTab(btn, tid) {
     document.querySelectorAll(".tab-btns button").forEach(b => b.classList.remove("active"));
