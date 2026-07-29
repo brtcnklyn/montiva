@@ -1,6 +1,10 @@
 // MONTIVA — varsayılan tohum veriler (ilk açılışta localStorage'a yüklenir)
 // Admin panelinden yapılan değişiklikler localStorage'da saklanır; "Fabrika ayarlarına dön" bunları geri yükler.
 
+// Katalog/içerik sürümü — bunu artırınca ziyaretçilerin tarayıcısındaki eski veri
+// otomatik yenilenir (siparişler, mesajlar ve sepet korunur).
+const SEED_VERSION = 2;
+
 const DEFAULT_SITE = {
   brand: "MONTIVA",
   slogan: "Renk seç, kur, keyfini çıkar.",

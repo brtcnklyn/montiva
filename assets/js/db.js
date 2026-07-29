@@ -2,7 +2,8 @@
 // Admin panelindeki değişiklikler burada saklanır ve tüm sayfalar buradan okur.
 const DB = (() => {
   const K = { site: "montiva_site", products: "montiva_products", content: "montiva_content",
-              orders: "montiva_orders", cart: "montiva_cart", messages: "montiva_messages" };
+              orders: "montiva_orders", cart: "montiva_cart", messages: "montiva_messages",
+              version: "montiva_seed_version" };
 
   function load(key, def) {
     try { const v = JSON.parse(localStorage.getItem(key)); return v == null ? def : v; }
@@ -10,8 +11,25 @@ const DB = (() => {
   }
   function save(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
 
-  // ---- ilk açılışta tohumla ----
+  // ---- ilk açılışta tohumla / katalog sürümü değiştiyse yenile ----
   function ensureSeed() {
+    const cur = typeof SEED_VERSION === "number" ? SEED_VERSION : 1;
+    const stored = parseInt(localStorage.getItem(K.version) || "0", 10);
+    if (stored < cur) {
+      // yeni katalog yayınlandı → ürün, içerik ve site ayarlarını tazele.
+      // Siparişler, mesajlar ve sepet olduğu gibi korunur.
+      const prevSite = load(K.site, {});
+      save(K.products, DEFAULT_PRODUCTS);
+      save(K.content, DEFAULT_CONTENT);
+      // yöneticinin kendi girdiği iletişim/marka bilgilerini koru
+      const keep = {};
+      ["brand", "phone", "email", "address", "adminPass", "arBase"].forEach(k => {
+        if (prevSite && prevSite[k]) keep[k] = prevSite[k];
+      });
+      save(K.site, { ...DEFAULT_SITE, ...keep });
+      localStorage.setItem(K.version, String(cur));
+      return;
+    }
     if (localStorage.getItem(K.site) == null) save(K.site, DEFAULT_SITE);
     if (localStorage.getItem(K.products) == null) save(K.products, DEFAULT_PRODUCTS);
     if (localStorage.getItem(K.content) == null) save(K.content, DEFAULT_CONTENT);
@@ -32,7 +50,10 @@ const DB = (() => {
     addOrder: (o) => { const a = load(K.orders, []); a.push(o); save(K.orders, a); },
     messages: () => load(K.messages, []),
     addMessage: (m) => { const a = load(K.messages, []); a.push(m); save(K.messages, a); },
-    resetAll: () => { save(K.site, DEFAULT_SITE); save(K.products, DEFAULT_PRODUCTS); save(K.content, DEFAULT_CONTENT); },
+    resetAll: () => {
+      save(K.site, DEFAULT_SITE); save(K.products, DEFAULT_PRODUCTS); save(K.content, DEFAULT_CONTENT);
+      localStorage.setItem(K.version, String(typeof SEED_VERSION === "number" ? SEED_VERSION : 1));
+    },
     // stok düş (sipariş sonrası)
     decrementStock: (items) => {
       const ps = load(K.products, DEFAULT_PRODUCTS);
