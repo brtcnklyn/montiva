@@ -66,6 +66,7 @@
     { id: "dashboard", icon: "📊", label: "Panel" },
     { id: "products", icon: "📦", label: "Ürünler & Stok" },
     { id: "orders", icon: "🧾", label: "Siparişler" },
+    { id: "returns", icon: "↩️", label: "İade Talepleri" },
     { id: "messages", icon: "✉️", label: "Mesajlar" },
     { id: "content", icon: "📝", label: "Sayfa Metinleri" },
     { id: "settings", icon: "⚙️", label: "Ayarlar" }
@@ -92,7 +93,7 @@
   function switchView(v) {
     state.view = v;
     app().querySelectorAll(".admin-side a[data-view]").forEach(a => a.classList.toggle("active", a.dataset.view === v));
-    ({ dashboard: renderDashboard, products: renderProducts, orders: renderOrders,
+    ({ dashboard: renderDashboard, products: renderProducts, orders: renderOrders, returns: renderReturns,
        messages: renderMessages, content: renderContent, settings: renderSettings }[v])();
   }
   function setView(html) { document.getElementById("admin-view").innerHTML = html; }
@@ -112,6 +113,7 @@
         <div class="stat"><div class="ic">🗃️</div><b>${totalStock}</b><span>Toplam stok adedi</span></div>
         <div class="stat"><div class="ic">🧾</div><b>${orders.length}</b><span>Toplam sipariş (${newOrders} yeni)</span></div>
         <div class="stat"><div class="ic">💰</div><b>${money(revenue)}</b><span>Toplam ciro (demo)</span></div>
+        <div class="stat"><div class="ic">↩️</div><b>${DB.returns().filter(r => !["Tamamlandı","Reddedildi"].includes(r.status)).length}</b><span>Bekleyen iade talebi</span></div>
       </div>
       <div class="panel">
         <div class="panel-head"><div><h2>⚠️ Stok Uyarıları</h2><div class="desc">5 adet ve altına düşen ürünler</div></div></div>
@@ -310,7 +312,12 @@
       <div class="order-detail-row" style="border:none"><b>TOPLAM</b><b style="color:var(--primary-700)">${esc(o.total)}</b></div>
       <div class="cfield" style="margin-top:20px"><label>Sipariş Durumu</label>
         <select id="o-status">${statuses.map(s => `<option ${(o.status||"Yeni")===s?"selected":""}>${s}</option>`).join("")}</select></div>
-      <div style="display:flex;gap:12px;justify-content:flex-end">
+      <div style="display:flex;gap:12px;justify-content:flex-end;flex-wrap:wrap">
+        <a class="btn btn-ghost btn-sm" href="mailto:${esc(o.email || "")}?subject=${encodeURIComponent("Faturanız — Sipariş " + o.no + " | " + DB.site().brand)}&body=${encodeURIComponent(
+          "Merhaba " + (o.name || "") + ",\n\n" + o.no + " numaralı siparişinizin faturası ektedir.\n\n" +
+          "Sipariş No: " + o.no + "\nTarih: " + new Date(o.date).toLocaleDateString("tr-TR") + "\nTutar: " + o.total + "\n" +
+          "Ürünler:\n" + (o.items||[]).map(i => "- " + i.name + (i.color ? " (" + i.color + ")" : "") + " x" + i.qty).join("\n") +
+          "\n\nSipariş takibi: siparis-takip.html\n\nTeşekkürler,\n" + DB.site().brand)}">✉️ Faturayı E-posta ile Gönder</a>
         <button class="btn btn-ghost btn-sm" onclick="ADMIN.closeModal()">Kapat</button>
         <button class="btn btn-primary btn-sm" onclick="ADMIN.saveOrderStatus('${o.no}')">💾 Durumu Kaydet</button>
       </div>`);
@@ -319,6 +326,73 @@
     const orders = DB.orders(); const o = orders.find(x => x.no === no);
     if (o) { o.status = document.getElementById("o-status").value; DB.saveOrders(orders); }
     closeModal(); toast("✅ Sipariş durumu güncellendi"); renderOrders();
+  }
+
+  /* ================= İADE TALEPLERİ ================= */
+  const RET_STATUS = ["Talep Alındı", "İnceleniyor", "Onaylandı", "Kargo Bekleniyor", "Tamamlandı", "Reddedildi"];
+  function retPill(s) {
+    const map = { "Talep Alındı": "blue", "İnceleniyor": "amber", "Onaylandı": "green",
+                  "Kargo Bekleniyor": "amber", "Tamamlandı": "green", "Reddedildi": "red" };
+    return `<span class="pill ${map[s] || "grey"}">${esc(s)}</span>`;
+  }
+  function renderReturns() {
+    const list = DB.returns().slice().reverse();
+    setView(`
+      ${topbar("İade Talepleri", "Müşterilerden gelen iade başvuruları, sebepleri ve fotoğrafları")}
+      <div class="panel">
+        ${list.length ? `<table class="atable"><thead><tr><th>İade No</th><th>Sipariş</th><th>Müşteri</th><th>Sebep</th><th>Foto</th><th>Durum</th><th>Tarih</th><th></th></tr></thead><tbody>
+          ${list.map(r => `<tr>
+            <td><b>${esc(r.no)}</b></td>
+            <td>${esc(r.orderNo)}</td>
+            <td>${esc(r.name)}</td>
+            <td style="max-width:190px;white-space:normal">${esc(r.reason)}</td>
+            <td>${(r.photos||[]).length} adet</td>
+            <td>${retPill(r.status)}</td>
+            <td>${new Date(r.date).toLocaleDateString("tr-TR")}</td>
+            <td><button class="btn-sm btn-save" onclick="ADMIN.viewReturn('${esc(r.no)}')">İncele</button></td>
+          </tr>`).join("")}
+        </tbody></table>` : `<p class="muted">Henüz iade talebi yok. Müşteriler <b>iade.html</b> sayfasından talep oluşturabilir.</p>`}
+      </div>`);
+  }
+  function viewReturn(no) {
+    const r = DB.returns().find(x => x.no === no); if (!r) return;
+    const order = DB.orders().find(o => o.no === r.orderNo);
+    openModal(`
+      <h3>İade Talebi ${esc(r.no)}</h3>
+      <div class="order-detail-row"><span class="muted">Sipariş No</span><b>${esc(r.orderNo)}</b></div>
+      <div class="order-detail-row"><span class="muted">Müşteri</span><b>${esc(r.name)}</b></div>
+      <div class="order-detail-row"><span class="muted">E-posta</span><span>${esc(r.email)}</span></div>
+      <div class="order-detail-row"><span class="muted">Telefon</span><span>${esc(r.phone || "-")}</span></div>
+      <div class="order-detail-row"><span class="muted">Talep Tarihi</span><span>${new Date(r.date).toLocaleString("tr-TR")}</span></div>
+      ${order ? `<div class="order-detail-row"><span class="muted">Sipariş Tutarı</span><b>${esc(order.total)}</b></div>` : ""}
+      <div class="order-detail-row"><span class="muted">IBAN</span><span>${esc(r.iban || "belirtilmedi")}</span></div>
+
+      <h3 style="margin:20px 0 10px;font-size:1rem">İade Edilen Ürünler</h3>
+      ${(r.items||[]).map(i => `<div class="order-detail-row"><span>${esc(i.name)} ${i.color ? "· " + esc(i.color) : ""} × ${i.qty}</span><b>${money(i.price * i.qty)}</b></div>`).join("")}
+
+      <h3 style="margin:20px 0 10px;font-size:1rem">Sebep</h3>
+      <div class="repeat-item" style="margin:0">
+        <b>${esc(r.reason)}</b>
+        ${r.desc ? `<p style="margin-top:8px;font-size:.9rem">${esc(r.desc)}</p>` : ""}
+      </div>
+
+      <h3 style="margin:20px 0 10px;font-size:1rem">Müşteri Fotoğrafları (${(r.photos||[]).length})</h3>
+      <div class="photo-grid">
+        ${(r.photos||[]).map(p => `<a class="photo-thumb" href="${p}" target="_blank" title="Büyüt"><img src="${p}" alt="iade fotoğrafı"></a>`).join("") || '<p class="muted">Fotoğraf eklenmemiş.</p>'}
+      </div>
+
+      <div class="cfield" style="margin-top:20px"><label>Talep Durumu</label>
+        <select id="ret-status">${RET_STATUS.map(s => `<option ${r.status === s ? "selected" : ""}>${s}</option>`).join("")}</select></div>
+      <div style="display:flex;gap:12px;justify-content:flex-end;flex-wrap:wrap">
+        <a class="btn btn-ghost btn-sm" href="mailto:${esc(r.email)}?subject=${encodeURIComponent("İade Talebiniz " + r.no + " (Sipariş " + r.orderNo + ")")}&body=${encodeURIComponent("Merhaba " + r.name + ",\n\n" + r.no + " numaralı iade talebiniz hakkında bilgilendirme:\n\n")}">✉️ Müşteriye Yaz</a>
+        <button class="btn btn-ghost btn-sm" onclick="ADMIN.closeModal()">Kapat</button>
+        <button class="btn btn-primary btn-sm" onclick="ADMIN.saveReturnStatus('${esc(r.no)}')">💾 Durumu Kaydet</button>
+      </div>`);
+  }
+  function saveReturnStatus(no) {
+    const all = DB.returns(); const r = all.find(x => x.no === no);
+    if (r) { r.status = document.getElementById("ret-status").value; DB.saveReturns(all); }
+    closeModal(); toast("✅ İade durumu güncellendi"); renderReturns();
   }
 
   /* ================= MESAJLAR ================= */
@@ -501,7 +575,8 @@
   function boot() { if (isAuthed()) renderApp(); else renderLogin(); }
   window.ADMIN = {
     go: switchView, newProduct, deleteProduct, editProduct, applyProduct, saveProducts,
-    viewOrder, saveOrderStatus, saveContent, saveSettings, resetAll, closeModal, onModelFile, onHeroFile
+    viewOrder, saveOrderStatus, saveContent, saveSettings, resetAll, closeModal, onModelFile, onHeroFile,
+    viewReturn, saveReturnStatus
   };
   boot();
 })();

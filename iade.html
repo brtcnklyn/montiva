@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>İade Talebi — MONTIVA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css?v=4">
+</head>
+<body>
+
+<main>
+  <div class="page-hero">
+    <div class="container">
+      <h1>İade Talebi Oluştur</h1>
+      <p>Teslimattan itibaren 14 gün içinde iade hakkınız var. Sipariş numaranızla giriş yapın, iade sebebini seçin ve ürünün fotoğrafını ekleyin.</p>
+    </div>
+  </div>
+
+  <div class="container track-wrap">
+    <!-- 1. ADIM: sipariş doğrulama -->
+    <div class="form-card" id="step1">
+      <h3><span class="n">1</span> Siparişinizi Doğrulayın</h3>
+      <div class="frow">
+        <div class="field"><label>Sipariş Numarası *</label><input id="r-no" placeholder="MNT-12345678" autocomplete="off"></div>
+        <div class="field"><label>E-posta Adresi *</label><input id="r-mail" type="email" placeholder="ornek@mail.com" autocomplete="email"></div>
+      </div>
+      <button class="btn btn-primary" id="r-find" style="width:100%">Siparişimi Bul</button>
+      <div class="lookup-msg" id="r-msg"></div>
+    </div>
+
+    <!-- 2. ADIM: iade formu -->
+    <div id="step2"></div>
+  </div>
+</main>
+
+<script src="assets/js/icons.js?v=4"></script>
+<script src="assets/js/seed.js?v=4"></script>
+<script src="assets/js/db.js?v=4"></script>
+<script src="assets/js/store.js?v=4"></script>
+<script src="assets/js/chat.js?v=4"></script>
+<script>
+  renderChrome();
+
+  const REASONS = [
+    "Ürün beklediğim gibi değil",
+    "Yanlış ürün / renk geldi",
+    "Üründe hasar veya kusur var",
+    "Eksik parça çıktı",
+    "Ölçüler evime uymadı",
+    "Fikrimi değiştirdim (cayma hakkı)",
+    "Diğer"
+  ];
+  let currentOrder = null;
+  let photos = [];   // { name, dataUrl }
+
+  function findOrder() {
+    const no = document.getElementById("r-no").value.trim();
+    const mail = document.getElementById("r-mail").value.trim();
+    const msg = document.getElementById("r-msg");
+    if (!no || !mail) { msg.className = "lookup-msg err"; msg.innerHTML = icon("alert",15) + " Sipariş numarası ve e-posta gerekli."; return; }
+    const o = DB.findOrder(no, mail);
+    if (!o) { msg.className = "lookup-msg err"; msg.innerHTML = icon("alert",15) + " Sipariş bulunamadı. Bilgileri kontrol edin."; document.getElementById("step2").innerHTML = ""; return; }
+    // aynı sipariş için bekleyen talep var mı
+    const acik = DB.returns().find(r => r.orderNo === o.no && !["Tamamlandı","Reddedildi"].includes(r.status));
+    if (acik) {
+      msg.className = "lookup-msg err";
+      msg.innerHTML = icon("alert",15) + ` Bu sipariş için zaten açık bir iade talebiniz var (<b>${acik.no}</b> — ${acik.status}).`;
+      document.getElementById("step2").innerHTML = ""; return;
+    }
+    msg.className = "lookup-msg ok"; msg.innerHTML = icon("check",15) + " Sipariş doğrulandı.";
+    currentOrder = o; photos = [];
+    renderForm(o);
+    document.getElementById("step2").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function renderForm(o) {
+    document.getElementById("step2").innerHTML = `
+      <div class="form-card">
+        <h3><span class="n">2</span> İade Edilecek Ürünler</h3>
+        <div class="ret-items">
+          ${(o.items||[]).map((i, idx) => `
+            <label class="ret-item">
+              <input type="checkbox" class="ret-chk" data-i="${idx}" checked>
+              <div><b>${i.name}</b><span>${i.color || ""} · ${i.qty} adet · ${fmtPrice(i.price * i.qty)}</span></div>
+            </label>`).join("")}
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h3><span class="n">3</span> İade Sebebi</h3>
+        <div class="field">
+          <label>Sebep seçin *</label>
+          <select id="r-reason">
+            <option value="">— Seçiniz —</option>
+            ${REASONS.map(r => `<option>${r}</option>`).join("")}
+          </select>
+        </div>
+        <div class="field">
+          <label>Açıklama (isteğe bağlı)</label>
+          <textarea id="r-desc" rows="4" placeholder="Sorunu kısaca anlatın; böylece talebinizi daha hızlı sonuçlandırabiliriz."></textarea>
+        </div>
+        <div class="field">
+          <label>IBAN (ücret iadesi için, isteğe bağlı)</label>
+          <input id="r-iban" placeholder="TR.. .... .... .... .... .... ..">
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h3><span class="n">4</span> Ürün Fotoğrafı</h3>
+        <p class="muted" style="font-size:.88rem;margin-bottom:14px">Ürünün ve varsa hasarın net göründüğü en az 1 fotoğraf ekleyin (en fazla 4).</p>
+        <div class="upload-row">
+          <input type="file" id="r-photo" accept="image/*" multiple style="display:none" onchange="addPhotos()">
+          <button type="button" class="btn-sm btn-save" onclick="document.getElementById('r-photo').click()">${icon("upload",15)} Fotoğraf Ekle</button>
+          <span class="upload-name" id="r-photo-name">Henüz fotoğraf eklenmedi</span>
+        </div>
+        <div class="photo-grid" id="r-photos"></div>
+      </div>
+
+      <div class="form-card">
+        <h3><span class="n">5</span> Onay</h3>
+        <label class="check-line"><input type="checkbox" id="r-ok"> <span>Ürünün <b>monte edilmemiş</b> ve <b>orijinal ambalajında</b> olduğunu onaylıyorum.</span></label>
+        <label class="check-line"><input type="checkbox" id="r-kvkk"> <span><a href="kvkk.html" target="_blank">KVKK & Gizlilik Politikası</a>'nı okudum, verilerimin iade süreci için işlenmesini kabul ediyorum.</span></label>
+        <div class="lookup-msg" id="r-submsg"></div>
+        <button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="submitReturn()">${icon("return",17)} İade Talebini Gönder</button>
+      </div>`;
+  }
+
+  function addPhotos() {
+    const files = [...document.getElementById("r-photo").files];
+    files.forEach(f => {
+      if (photos.length >= 4) return;
+      if (f.size > 3 * 1024 * 1024) { toast(icon("alert",15) + " " + f.name + " çok büyük (3MB üzeri)"); return; }
+      const rd = new FileReader();
+      rd.onload = () => { photos.push({ name: f.name, dataUrl: rd.result }); drawPhotos(); };
+      rd.readAsDataURL(f);
+    });
+    document.getElementById("r-photo").value = "";
+  }
+  function drawPhotos() {
+    document.getElementById("r-photos").innerHTML = photos.map((p, i) => `
+      <div class="photo-thumb"><img src="${p.dataUrl}" alt="${p.name}">
+        <button type="button" onclick="removePhoto(${i})" title="Kaldır">${icon("close",13)}</button></div>`).join("");
+    document.getElementById("r-photo-name").textContent = photos.length ? `${photos.length} fotoğraf eklendi` : "Henüz fotoğraf eklenmedi";
+  }
+  function removePhoto(i) { photos.splice(i, 1); drawPhotos(); }
+
+  function submitReturn() {
+    const msg = document.getElementById("r-submsg");
+    const secili = [...document.querySelectorAll(".ret-chk")].filter(c => c.checked).map(c => currentOrder.items[+c.dataset.i]);
+    const reason = document.getElementById("r-reason").value;
+    const fail = t => { msg.className = "lookup-msg err"; msg.innerHTML = icon("alert",15) + " " + t; };
+
+    if (!secili.length) return fail("En az bir ürün seçin.");
+    if (!reason) return fail("İade sebebini seçin.");
+    if (!photos.length) return fail("En az 1 ürün fotoğrafı ekleyin.");
+    if (!document.getElementById("r-ok").checked) return fail("Ürün durumu onayını işaretleyin.");
+    if (!document.getElementById("r-kvkk").checked) return fail("KVKK onayını işaretleyin.");
+
+    const rno = "IAD-" + Date.now().toString().slice(-8);
+    const kayit = {
+      no: rno,
+      orderNo: currentOrder.no,
+      date: new Date().toISOString(),
+      status: "Talep Alındı",
+      name: currentOrder.name,
+      email: currentOrder.email,
+      phone: currentOrder.phone || "",
+      items: secili,
+      reason,
+      desc: document.getElementById("r-desc").value.trim(),
+      iban: document.getElementById("r-iban").value.trim(),
+      photos: photos.map(p => p.dataUrl)
+    };
+    try { DB.addReturn(kayit); }
+    catch (e) { return fail("Fotoğraflar çok büyük, daha küçük görseller deneyin."); }
+
+    document.querySelector(".track-wrap").innerHTML = `
+      <div class="success-card" style="text-align:center">
+        <div class="success-icon">${icon("check", 38)}</div>
+        <h2 style="font-size:1.4rem;margin-bottom:8px">İade Talebiniz Alındı</h2>
+        <p class="muted">Talebiniz incelemeye alındı. Sonucu e-posta ile bildireceğiz.</p>
+        <div class="order-no">İade No: ${rno}</div>
+        <p class="muted" style="font-size:.9rem">
+          Sipariş No: <b>${currentOrder.no}</b><br>
+          Bildirim adresi: <b>${currentOrder.email}</b>
+        </p>
+        <div class="demo-note" style="text-align:left;margin-top:20px">${icon("alert",15)}
+          <span>Onaylanan iadelerde kargo kodu e-posta ile gönderilir. Ürünü <b>monte etmeden</b>, orijinal kutusunda hazır bulundurun.</span></div>
+        <div style="display:flex;gap:12px;justify-content:center;margin-top:22px;flex-wrap:wrap">
+          <a href="siparis-takip.html?no=${encodeURIComponent(currentOrder.no)}&mail=${encodeURIComponent(currentOrder.email)}" class="btn btn-primary">Talebimi Takip Et</a>
+          <a href="index.html" class="btn btn-outline">Ana Sayfa</a>
+        </div>
+      </div>`;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  document.getElementById("r-find").onclick = findOrder;
+  ["r-no","r-mail"].forEach(id => document.getElementById(id).addEventListener("keydown", e => { if (e.key === "Enter") findOrder(); }));
+
+  const q = new URLSearchParams(location.search);
+  if (q.get("no")) document.getElementById("r-no").value = q.get("no");
+  if (q.get("mail")) document.getElementById("r-mail").value = q.get("mail");
+  if (q.get("no") && q.get("mail")) findOrder();
+</script>
+</body>
+</html>

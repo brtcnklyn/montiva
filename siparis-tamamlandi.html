@@ -6,7 +6,7 @@
   <title>Siparişiniz Alındı — MONTIVA</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=3">
+  <link rel="stylesheet" href="assets/css/style.css?v=4">
 </head>
 <body>
 
@@ -15,30 +15,44 @@
     <div class="success-card">
       <div class="success-icon">✓</div>
       <h1 style="font-size:1.5rem;margin-bottom:6px">Siparişiniz Alındı! <svg class="ic-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.14-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.14a.5.5 0 0 1 .96 0L14.06 8.5A2 2 0 0 0 15.5 9.94l6.14 1.58a.5.5 0 0 1 0 .96L15.5 14.06a2 2 0 0 0-1.44 1.44l-1.58 6.14a.5.5 0 0 1-.96 0z"/></svg></h1>
-      <p style="color:var(--muted)">Teşekkürler! Sipariş onayınız e-posta adresinize gönderildi.</p>
+      <p style="color:var(--muted)">Teşekkürler! Sipariş onayınız ve faturanız e-posta adresinize gönderilecek.</p>
       <div class="order-no" id="orderNo">MNT-00000000</div>
+      <p style="color:var(--muted);font-size:.88rem" id="mailLine"></p>
       <p style="color:var(--muted);font-size:.88rem">
         Siparişiniz <b>1–3 iş günü</b> içinde kargoya verilecek.<br>
         Ürününüz demonte gelir — kutudan PDF montaj kılavuzu ve alyan anahtarı çıkacaktır.<br>
         Montajda takılırsanız sağ alttaki <b><svg class="ic-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg> AI canlı desteğe</b> yazmanız yeterli.
       </p>
+      <div class="demo-note" style="text-align:left;margin-top:20px">
+        <svg class="ic-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        <span><b>Sipariş numaranızı saklayın.</b> Sipariş durumunu takip etmek ve iade talebi oluşturmak için bu numara ile e-posta adresiniz gerekir.</span>
+      </div>
       <div style="display:flex;gap:12px;justify-content:center;margin-top:26px;flex-wrap:wrap">
-        <a href="urunler.html" class="btn btn-primary">Alışverişe Devam Et</a>
-        <a href="index.html" class="btn btn-outline">Ana Sayfa</a>
+        <a class="btn btn-primary" id="trackBtn" href="siparis-takip.html">Siparişimi Takip Et</a>
+        <a href="urunler.html" class="btn btn-outline">Alışverişe Devam Et</a>
       </div>
     </div>
   </div>
 </main>
 
-<script src="assets/js/icons.js?v=3"></script>
-<script src="assets/js/seed.js?v=3"></script>
-<script src="assets/js/db.js?v=3"></script>
-<script src="assets/js/store.js?v=3"></script>
-<script src="assets/js/chat.js?v=3"></script>
+<script src="assets/js/icons.js?v=4"></script>
+<script src="assets/js/seed.js?v=4"></script>
+<script src="assets/js/db.js?v=4"></script>
+<script src="assets/js/store.js?v=4"></script>
+<script src="assets/js/chat.js?v=4"></script>
 <script>
   renderChrome();
   const no = new URLSearchParams(location.search).get("no");
-  if (no) document.getElementById("orderNo").textContent = "Sipariş No: " + no;
+  if (no) {
+    document.getElementById("orderNo").textContent = "Sipariş No: " + no;
+    const o = DB.orders().find(x => x.no === no);
+    if (o && o.email) {
+      document.getElementById("mailLine").innerHTML =
+        `Fatura ve bilgilendirmeler <b>${o.email}</b> adresine gönderilecek.`;
+      document.getElementById("trackBtn").href =
+        `siparis-takip.html?no=${encodeURIComponent(no)}&mail=${encodeURIComponent(o.email)}`;
+    }
+  }
 </script>
 </body>
 </html>

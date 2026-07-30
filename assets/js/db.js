@@ -3,7 +3,7 @@
 const DB = (() => {
   const K = { site: "montiva_site", products: "montiva_products", content: "montiva_content",
               orders: "montiva_orders", cart: "montiva_cart", messages: "montiva_messages",
-              version: "montiva_seed_version" };
+              returns: "montiva_returns", version: "montiva_seed_version" };
 
   function load(key, def) {
     try { const v = JSON.parse(localStorage.getItem(key)); return v == null ? def : v; }
@@ -54,6 +54,17 @@ const DB = (() => {
     addOrder: (o) => { const a = load(K.orders, []); a.push(o); save(K.orders, a); },
     messages: () => load(K.messages, []),
     addMessage: (m) => { const a = load(K.messages, []); a.push(m); save(K.messages, a); },
+    // ---- iade talepleri ----
+    returns: () => load(K.returns, []),
+    saveReturns: (r) => save(K.returns, r),
+    addReturn: (r) => { const a = load(K.returns, []); a.push(r); save(K.returns, a); },
+    // sipariş no + e-posta ile sipariş bul (takip / iade doğrulaması)
+    findOrder: (no, email) => {
+      const n = String(no || "").trim().toUpperCase();
+      const e = String(email || "").trim().toLowerCase();
+      return load(K.orders, []).find(o =>
+        String(o.no).toUpperCase() === n && String(o.email || "").toLowerCase() === e) || null;
+    },
     resetAll: () => {
       save(K.site, DEFAULT_SITE); save(K.products, DEFAULT_PRODUCTS); save(K.content, DEFAULT_CONTENT);
       localStorage.setItem(K.version, String(typeof SEED_VERSION === "number" ? SEED_VERSION : 1));

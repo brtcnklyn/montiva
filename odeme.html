@@ -6,7 +6,7 @@
   <title>Ödeme — MONTIVA</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=3">
+  <link rel="stylesheet" href="assets/css/style.css?v=4">
 </head>
 <body>
 
@@ -17,11 +17,11 @@
   <div class="container" id="checkout-root"></div>
 </main>
 
-<script src="assets/js/icons.js?v=3"></script>
-<script src="assets/js/seed.js?v=3"></script>
-<script src="assets/js/db.js?v=3"></script>
-<script src="assets/js/store.js?v=3"></script>
-<script src="assets/js/chat.js?v=3"></script>
+<script src="assets/js/icons.js?v=4"></script>
+<script src="assets/js/seed.js?v=4"></script>
+<script src="assets/js/db.js?v=4"></script>
+<script src="assets/js/store.js?v=4"></script>
+<script src="assets/js/chat.js?v=4"></script>
 <script>
   renderChrome();
   const cart = getCart();
@@ -47,7 +47,7 @@
             <div class="field"><label>Soyad *</label><input id="f-soyad" required></div>
           </div>
           <div class="frow">
-            <div class="field"><label>E-posta *</label><input id="f-email" type="email" required></div>
+            <div class="field"><label>E-posta * <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--muted)">(fatura bu adrese gönderilir)</span></label><input id="f-email" type="email" required></div>
             <div class="field"><label>Telefon *</label><input id="f-tel" type="tel" placeholder="05xx xxx xx xx" required></div>
           </div>
           <div class="frow">
@@ -118,7 +118,7 @@
         el.classList.toggle("err", bad);
         if (bad) ok = false;
       });
-      if (!ok) { toast("<svg class="ic-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> Lütfen zorunlu alanları doldurun"); return; }
+      if (!ok) { toast(icon("alert",15) + " Lütfen zorunlu alanları doldurun"); return; }
 
       const payType = document.querySelector('input[name="pay"]:checked').value;
       const orderNo = "MNT-" + Date.now().toString().slice(-8);

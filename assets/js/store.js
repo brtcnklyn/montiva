@@ -88,6 +88,8 @@ function renderChrome(active) {
           <h4>Mağaza</h4>
           <a href="urunler.html">Tüm Ürünler</a>
           <a href="sepet.html">Sepetim</a>
+          <a href="siparis-takip.html">Sipariş Takibi</a>
+          <a href="iade.html">İade Talebi</a>
           <a href="sss.html">Sıkça Sorulan Sorular</a>
         </div>
         <div>

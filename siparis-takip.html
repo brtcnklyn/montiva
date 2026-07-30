@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sipariş Takibi — MONTIVA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css?v=4">
+</head>
+<body>
+
+<main>
+  <div class="page-hero">
+    <div class="container">
+      <h1>Sipariş Takibi</h1>
+      <p>Sipariş numaranız ve sipariş sırasında girdiğiniz e-posta adresiyle siparişinizin durumunu görüntüleyin.</p>
+    </div>
+  </div>
+
+  <div class="container track-wrap">
+    <div class="form-card" id="lookup-card">
+      <h3><span class="n">1</span> Sipariş Sorgula</h3>
+      <div class="frow">
+        <div class="field"><label>Sipariş Numarası *</label><input id="t-no" placeholder="MNT-12345678" autocomplete="off"></div>
+        <div class="field"><label>E-posta Adresi *</label><input id="t-mail" type="email" placeholder="ornek@mail.com" autocomplete="email"></div>
+      </div>
+      <button class="btn btn-primary" id="t-btn" style="width:100%">Siparişimi Sorgula</button>
+      <div class="lookup-msg" id="t-msg"></div>
+      <p class="muted" style="font-size:.82rem;margin-top:14px">Sipariş numaranızı sipariş onay ekranında ve e-postanızda bulabilirsiniz.</p>
+    </div>
+
+    <div id="t-result"></div>
+  </div>
+</main>
+
+<script src="assets/js/icons.js?v=4"></script>
+<script src="assets/js/seed.js?v=4"></script>
+<script src="assets/js/db.js?v=4"></script>
+<script src="assets/js/store.js?v=4"></script>
+<script src="assets/js/chat.js?v=4"></script>
+<script>
+  renderChrome();
+
+  const STEPS = ["Yeni", "Hazırlanıyor", "Kargoda", "Teslim Edildi"];
+
+  function lookup() {
+    const no = document.getElementById("t-no").value.trim();
+    const mail = document.getElementById("t-mail").value.trim();
+    const msg = document.getElementById("t-msg");
+    const box = document.getElementById("t-result");
+    if (!no || !mail) { msg.className = "lookup-msg err"; msg.innerHTML = icon("alert",15) + " Lütfen sipariş numarası ve e-posta girin."; box.innerHTML = ""; return; }
+    const o = DB.findOrder(no, mail);
+    if (!o) {
+      msg.className = "lookup-msg err";
+      msg.innerHTML = icon("alert",15) + " Bu bilgilere ait sipariş bulunamadı. Numarayı ve e-postayı kontrol edin.";
+      box.innerHTML = ""; return;
+    }
+    msg.className = "lookup-msg ok"; msg.innerHTML = icon("check",15) + " Sipariş bulundu.";
+    render(o);
+    history.replaceState(null, "", `siparis-takip.html?no=${encodeURIComponent(o.no)}&mail=${encodeURIComponent(o.email)}`);
+  }
+
+  function render(o) {
+    const st = o.status || "Yeni";
+    const iptal = st === "İptal";
+    const idx = STEPS.indexOf(st);
+    const ret = DB.returns().filter(r => r.orderNo === o.no);
+    document.getElementById("t-result").innerHTML = `
+      <div class="form-card">
+        <h3><span class="n">2</span> Sipariş Durumu</h3>
+        <div class="order-head">
+          <div><span class="muted">Sipariş No</span><b>${o.no}</b></div>
+          <div><span class="muted">Tarih</span><b>${new Date(o.date).toLocaleDateString("tr-TR")}</b></div>
+          <div><span class="muted">Tutar</span><b>${o.total}</b></div>
+          <div><span class="muted">Ödeme</span><b>${o.pay || "-"}</b></div>
+        </div>
+
+        ${iptal ? `<div class="demo-note" style="margin-top:18px">${icon("alert",15)} Bu sipariş iptal edilmiştir.</div>` : `
+        <div class="track-steps">
+          ${STEPS.map((s, i) => `
+            <div class="tstep ${i < idx ? "done" : ""} ${i === idx ? "current" : ""}">
+              <span class="dot">${i <= idx ? icon("check", 13) : ""}</span>
+              <b>${s}</b>
+            </div>`).join("")}
+        </div>`}
+
+        <h4 class="sec-title">Ürünler</h4>
+        <div class="track-items">
+          ${(o.items||[]).map(i => `<div class="titem"><span>${i.name} ${i.color ? "· " + i.color : ""} × ${i.qty}</span><b>${fmtPrice(i.price * i.qty)}</b></div>`).join("")}
+        </div>
+
+        <h4 class="sec-title">Teslimat</h4>
+        <p class="muted" style="font-size:.9rem">${o.name} — ${o.phone || ""}<br>${o.address || ""}</p>
+
+        ${ret.length ? `
+        <h4 class="sec-title">İade Talepleriniz</h4>
+        ${ret.map(r => `<div class="titem"><span>${r.no} · ${r.reason}</span>${statusPill(r.status)}</div>`).join("")}` : ""}
+
+        <div class="track-actions">
+          <a class="btn btn-ghost" href="iade.html?no=${encodeURIComponent(o.no)}&mail=${encodeURIComponent(o.email)}">${icon("return",17)} İade Talebi Oluştur</a>
+          <button class="btn btn-outline" onclick="document.getElementById('chat-fab').click()">${icon("bot",17)} Destek</button>
+        </div>
+      </div>`;
+  }
+
+  function statusPill(s) {
+    const map = { "Talep Alındı": "blue", "İnceleniyor": "amber", "Onaylandı": "green", "Kargo Bekleniyor": "amber", "Tamamlandı": "green", "Reddedildi": "red" };
+    return `<span class="pill ${map[s] || "grey"}">${s}</span>`;
+  }
+
+  document.getElementById("t-btn").onclick = lookup;
+  ["t-no","t-mail"].forEach(id => document.getElementById(id).addEventListener("keydown", e => { if (e.key === "Enter") lookup(); }));
+
+  // bağlantıyla gelindiyse otomatik sorgula
+  const q = new URLSearchParams(location.search);
+  if (q.get("no")) document.getElementById("t-no").value = q.get("no");
+  if (q.get("mail")) document.getElementById("t-mail").value = q.get("mail");
+  if (q.get("no") && q.get("mail")) lookup();
+</script>
+</body>
+</html>
