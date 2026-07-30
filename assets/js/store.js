@@ -2,7 +2,14 @@
 const CART_KEY = "montiva_cart";
 
 /* ---------------- sepet ---------------- */
-function getCart() { try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch { return []; } }
+function getCart() {
+  let rows;
+  try { rows = JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch { return []; }
+  // katalogda artık bulunmayan ürünleri ayıkla (eski sepet kalıntıları sayaçta görünmesin)
+  const valid = rows.filter(r => r && r.id && getProduct(r.id));
+  if (valid.length !== rows.length) localStorage.setItem(CART_KEY, JSON.stringify(valid));
+  return valid;
+}
 function saveCart(cart) { localStorage.setItem(CART_KEY, JSON.stringify(cart)); updateCartBadge(); }
 function addToCart(id, qty = 1) {
   const p = getProduct(id);

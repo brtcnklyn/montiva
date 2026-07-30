@@ -27,6 +27,10 @@ const DB = (() => {
         if (prevSite && prevSite[k]) keep[k] = prevSite[k];
       });
       save(K.site, { ...DEFAULT_SITE, ...keep });
+      // eski katalogdan kalan sepet satırlarını temizle (artık var olmayan ürünler)
+      const ids = new Set(DEFAULT_PRODUCTS.map(p => p.id));
+      const cart = load(K.cart, []).filter(r => ids.has(r.id));
+      save(K.cart, cart);
       localStorage.setItem(K.version, String(cur));
       return;
     }
