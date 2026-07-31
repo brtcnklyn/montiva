@@ -1,4 +1,4 @@
-// MONTIVA — localStorage veri katmanı. seed.js'ten sonra yüklenmeli.
+// NOVORA — localStorage veri katmanı. seed.js'ten sonra yüklenmeli.
 // Admin panelindeki değişiklikler burada saklanır ve tüm sayfalar buradan okur.
 const DB = (() => {
   const K = { site: "montiva_site", products: "montiva_products", content: "montiva_content",
@@ -21,9 +21,10 @@ const DB = (() => {
       const prevSite = load(K.site, {});
       save(K.products, DEFAULT_PRODUCTS);
       save(K.content, DEFAULT_CONTENT);
-      // yöneticinin kendi girdiği iletişim/marka bilgilerini koru
+      // yöneticinin kendi girdiği bilgileri koru.
+      // (marka adı, slogan ve e-posta yeni sürümle birlikte güncellenir — marka değişikliği yansısın)
       const keep = {};
-      ["brand", "phone", "email", "address", "adminPass", "arBase"].forEach(k => {
+      ["phone", "address", "adminPass", "arBase"].forEach(k => {
         if (prevSite && prevSite[k]) keep[k] = prevSite[k];
       });
       save(K.site, { ...DEFAULT_SITE, ...keep });

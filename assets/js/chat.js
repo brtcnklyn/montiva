@@ -1,9 +1,9 @@
-// MONTIVA — Yapay Zekâ Canlı Destek (MONTI) v2
+// NOVORA — Yapay Zekâ Canlı Destek (NOVO) v2
 // Gelişmiş kural + niyet skorlama motoru: bağlam hafızası, ürün/renk/bütçe çıkarımı,
 // ürün karşılaştırma, yazım hatası toleransı. Bilgi kaynağı: canlı DB (PRODUCTS, SITE).
 
 (function () {
-  const BOT = "MONTI";
+  const BOT = "NOVO";
   const ctx = { lastProduct: null, greeted: false };
 
   /* ---------- arayüz ---------- */

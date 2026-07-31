@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hakkımızda — MONTIVA</title>
+  <title>Hakkımızda — NOVORA</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=4">
+  <link rel="stylesheet" href="assets/css/style.css?v=5">
 </head>
 <body>
 
@@ -17,16 +17,26 @@
       <p data-content="about.sub"></p>
     </div>
   </div>
+  <!-- MARKA KİMLİĞİ -->
+  <section class="brand-block">
+    <div class="container">
+      <img src="assets/img/novora-logo.svg" alt="NOVORA" class="brand-logo">
+      <p class="brand-slogan" id="brand-slogan"></p>
+      <p class="brand-note">Sadeliğin, rengin ve kolay montajın buluştuğu yer.</p>
+    </div>
+  </section>
+
   <div class="container prose" id="about-body"></div>
 </main>
 
-<script src="assets/js/icons.js?v=4"></script>
-<script src="assets/js/seed.js?v=4"></script>
-<script src="assets/js/db.js?v=4"></script>
-<script src="assets/js/store.js?v=4"></script>
-<script src="assets/js/chat.js?v=4"></script>
+<script src="assets/js/icons.js?v=5"></script>
+<script src="assets/js/seed.js?v=5"></script>
+<script src="assets/js/db.js?v=5"></script>
+<script src="assets/js/store.js?v=5"></script>
+<script src="assets/js/chat.js?v=5"></script>
 <script>
   renderChrome("about");
+  document.getElementById("brand-slogan").textContent = SITE.slogan;
   document.getElementById("about-body").innerHTML = CONTENT.about.blocks.map(b => `<h2>${b.h}</h2><p>${b.p}</p>`).join("");
 </script>
 </body>

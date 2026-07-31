@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 470" role="img" aria-label="NOVORA">
+  <title>NOVORA</title>
+  <g fill="none" stroke="#2C4632" stroke-width="11" stroke-linejoin="round" stroke-linecap="round">
+    <!-- sol kol: dış dikey + alt pah + iç dikey -->
+    <path d="M112 52 L112 300 L156 272 L156 152"/>
+    <!-- ana çapraz -->
+    <path d="M112 52 L288 300"/>
+    <!-- sağ kol: iç dikey + üst pah + dış dikey -->
+    <path d="M244 200 L244 80 L288 52 L288 300"/>
+  </g>
+  <g fill="#2C4632" font-family="Urbanist, system-ui, sans-serif">
+    <text x="200" y="410" text-anchor="middle" font-size="66" letter-spacing="16" font-weight="300">NOVORA</text>
+  </g>
+  <line x1="150" y1="440" x2="250" y2="440" stroke="#2C4632" stroke-width="3"/>
+</svg>

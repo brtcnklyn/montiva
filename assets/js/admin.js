@@ -1,4 +1,4 @@
-// MONTIVA — Admin Paneli motoru (db.js'e bağlı). Tüm veriler localStorage'da.
+// NOVORA — Admin Paneli motoru (db.js'e bağlı). Tüm veriler localStorage'da.
 (function () {
   const AUTH_KEY = "montiva_admin_auth";
   const app = () => document.getElementById("admin-app");

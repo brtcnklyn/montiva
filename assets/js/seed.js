@@ -1,15 +1,15 @@
-// MONTIVA — varsayılan tohum veriler (ilk açılışta localStorage'a yüklenir)
+// NOVORA — varsayılan tohum veriler (ilk açılışta localStorage'a yüklenir)
 // Admin panelinden yapılan değişiklikler localStorage'da saklanır; "Fabrika ayarlarına dön" bunları geri yükler.
 
 // Katalog/içerik sürümü — bunu artırınca ziyaretçilerin tarayıcısındaki eski veri
 // otomatik yenilenir (siparişler, mesajlar ve sepet korunur).
-const SEED_VERSION = 2;
+const SEED_VERSION = 3;
 
 const DEFAULT_SITE = {
-  brand: "MONTIVA",
-  slogan: "Renk seç, kur, keyfini çıkar.",
+  brand: "NOVORA",
+  slogan: "Simple to Assemble. Beautiful to Live.",
   phone: "0850 000 00 00",
-  email: "destek@montiva.com.tr",
+  email: "destek@novora.com.tr",
   address: "Üretim ve sevkiyat merkezi — (adres eklenecek)",
   freeShippingLimit: 500,
   currency: "₺",
@@ -263,7 +263,7 @@ const DEFAULT_CONTENT = {
     heroTitle1: "Rengini seç,",
     heroHighlight: "evini yeniden yaz",
     heroTitle2: "",
-    heroLead: "MONTIVA, toz boyalı metal mobilyaları pastel yeşilden lavantaya uzanan bir renk paletiyle üretir. Demonte gönderir, anlaşılır PDF kılavuzla kapına getirir.",
+    heroLead: "NOVORA, toz boyalı metal mobilyaları pastel yeşilden lavantaya uzanan bir renk paletiyle üretir. Demonte gönderir, anlaşılır PDF kılavuzla kapına getirir.",
     cta1: "Koleksiyonu Keşfet",
     cta2: "Almadan Önce Evinde Gör",
     stats: [
@@ -292,7 +292,7 @@ const DEFAULT_CONTENT = {
     title: "Hakkımızda",
     sub: "İki ortak, bir atölye ve renkli bir fikir: metal mobilyayı sıkıcı olmaktan çıkarmak.",
     blocks: [
-      { h: "MONTIVA'nın Hikâyesi", p: "MONTIVA, iki ortağın hayaliyle kuruldu: biri tasarımı ve dijital deneyimi, diğeri üretimi üstlendi. Amacımız basit — showroom masrafı, aracı maliyeti ve şişirilmiş fiyatlar olmadan, doğrudan atölyeden evinize renkli ve kaliteli mobilya ulaştırmak." },
+      { h: "NOVORA'nın Hikâyesi", p: "Adımız \"yeni\" anlamına gelen <i>novo</i> kökünden geliyor; sloganımız da işimizi özetliyor: <b>Simple to Assemble. Beautiful to Live.</b> — Kurması kolay, yaşaması güzel. NOVORA, iki ortağın hayaliyle kuruldu: biri tasarımı ve dijital deneyimi, diğeri üretimi üstlendi. Amacımız basit — showroom masrafı, aracı maliyeti ve şişirilmiş fiyatlar olmadan, doğrudan atölyeden evinize renkli ve kaliteli mobilya ulaştırmak." },
       { h: "Neden Renk?", p: "Metal mobilya denince akla hep gri, siyah, beyaz gelir. Biz bunu değiştirmek istedik. Adaçayı yeşilinden lavantaya, tereyağı sarısından terrakotaya uzanan paletimizle her mekâna ve her karaktere uyan bir seçenek sunuyoruz. Elektrostatik toz boya sayesinde renkler solmaz, çizilmez." },
       { h: "Neden Demonte?", p: "Basit bir gerçek var: mobilya demonte taşındığında kargo hasarı azalır, nakliye maliyeti düşer ve bu tasarruf doğrudan fiyata yansır. Biz de tüm ürünlerimizi demonte üretiyor, anlaşılır PDF kılavuzlar ve kutudan çıkan aletlerle ortalama 30-60 dakikada kurulabilecek şekilde tasarlıyoruz. Üstelik her ürünü 3D olarak inceleyip AR ile evinize gerçek boyutunda yerleştirebilirsiniz." },
       { h: "Üretim Anlayışımız", p: "Tüm ürünlerimiz kendi atölyemizde, yerli çelik ile üretilir. Gövdeler elektrostatik toz boya ile kaplanır; delikli ve genişletilmiş sac paneller kendi tesisimizde şekillendirilir. Her ürün 2 yıl garantilidir ve tüm parçalar için yedek parça desteği sunuyoruz — tek bir vida bile eksik çıksa 48 saat içinde yenisini gönderiyoruz." }
@@ -312,7 +312,7 @@ const DEFAULT_CONTENT = {
       { q: "Montaj ne kadar sürer, zor mu?", a: "Ürüne göre 15-65 dakika arasında değişir. Her ürünün sayfasından indirebileceğiniz adım adım PDF kılavuz ile herhangi bir ustalık gerektirmeden kurabilirsiniz. Büyük ürünlerde 2 kişi öneriyoruz." },
       { q: "Kargo ücreti ne kadar? Ne zaman elime ulaşır?", a: "500 TL üzeri tüm siparişlerde kargo ücretsizdir — yani tüm ürünlerimiz ücretsiz kargoludur. Siparişler 1-3 iş günü içinde kargoya verilir, teslimat genellikle 2-4 iş günü sürer." },
       { q: "İade ve değişim koşulları nelerdir?", a: "Teslimattan itibaren 14 gün içinde koşulsuz iade hakkınız vardır. Ürünün monte edilmemiş ve orijinal ambalajında olması gerekir. İade kargo ücreti hasar/ayıp durumunda bize aittir." },
-      { q: "Parça eksik veya hasarlı çıkarsa ne yapmalıyım?", a: "Fotoğrafıyla birlikte destek@montiva.com.tr adresine yazmanız yeterli. Eksik veya hasarlı parçanız 48 saat içinde ücretsiz olarak kargolanır — ürünü iade etmenize gerek kalmaz." },
+      { q: "Parça eksik veya hasarlı çıkarsa ne yapmalıyım?", a: "Fotoğrafıyla birlikte destek@novora.com.tr adresine yazmanız yeterli. Eksik veya hasarlı parçanız 48 saat içinde ücretsiz olarak kargolanır — ürünü iade etmenize gerek kalmaz." },
       { q: "3D önizleme ve AR nasıl çalışıyor?", a: "Her ürün sayfasında ürünü fareyle döndürüp yakınlaştırabileceğiniz bir 3D model bulunur. Telefonunuzdan girerseniz 'Evimde Gör' butonuyla kameranızı açıp ürünü gerçek boyutunda odanıza yerleştirebilirsiniz." },
       { q: "Hangi ödeme yöntemlerini kullanabilirim?", a: "Kredi/banka kartı (Visa, Mastercard, Troy), havale/EFT (%3 indirimli) ve kapıda ödeme (+49,90 TL) seçenekleri mevcuttur." }
     ]

@@ -1,4 +1,4 @@
-// MONTIVA — ortak arayüz + sepet mantığı (db.js'e bağlı)
+// NOVORA — ortak arayüz + sepet mantığı (db.js'e bağlı)
 const CART_KEY = "montiva_cart";
 
 /* ---------------- sepet ---------------- */
@@ -62,7 +62,7 @@ function renderChrome(active) {
   </div>
   <header class="site">
     <div class="container">
-      <a class="logo" href="index.html"><span class="mark">▣</span><span>${SITE.brand}<small>DEMONTE MOBİLYA</small></span></a>
+      <a class="logo" href="index.html"><span class="mark">${icon("novora", 24)}</span><span>${SITE.brand}<small>SIMPLE TO ASSEMBLE</small></span></a>
       <button class="burger" onclick="document.querySelector('nav.main').classList.toggle('open')">${icon("menu", 24)}</button>
       <nav class="main">
         <a href="index.html" ${active === "home" ? 'class="active"' : ""}>Ana Sayfa</a>
@@ -81,7 +81,7 @@ function renderChrome(active) {
     <div class="container">
       <div class="grid">
         <div>
-          <a class="logo" href="index.html" style="margin-bottom:14px"><span class="mark">▣</span><span>${SITE.brand}<small>DEMONTE MOBİLYA</small></span></a>
+          <a class="logo" href="index.html" style="margin-bottom:14px"><span class="mark">${icon("novora", 24)}</span><span>${SITE.brand}<small>SIMPLE TO ASSEMBLE</small></span></a>
           <p>Kendi üretimimiz demonte mobilyaları, anlaşılır montaj kılavuzları ve 3D önizleme ile kapınıza getiriyoruz. ${SITE.slogan}</p>
         </div>
         <div>
