@@ -33,9 +33,20 @@
     document.getElementById("chat-send").onclick = send;
     document.getElementById("chat-in").addEventListener("keydown", e => { if (e.key === "Enter") send(); });
 
-    quickReplies(["Ürünleri göster", "Hangisini önerirsin?", "Kargo & teslimat", "3D / AR nasıl çalışır?"]);
+    const u = (typeof AUTH !== "undefined") ? AUTH.current() : null;
+    quickReplies(u
+      ? ["Siparişlerim", "İade nasıl yapılır?", "Hangisini önerirsin?", "Kargo & teslimat"]
+      : ["Ürünleri göster", "Hangisini önerirsin?", "Kargo & teslimat", "İade nasıl yapılır?"]);
     setTimeout(() => {
-      botSay(`${selam()} 👋 Ben <b>${BOT}</b>, ${SITE.brand}'nın yapay zekâ asistanıyım.<br>Ürün seçimi, fiyat, kargo, montaj, 3D önizleme, iade... aklına ne takılırsa yaz. Sana yardımcı olmak için buradayım. 🙂`);
+      if (u) {
+        const n = (u.name || "").split(" ")[0];
+        const cnt = AUTH.myOrders().length;
+        botSay(`${selam()} <b>${n}</b>! 👋 Ben <b>${BOT}</b>, ${SITE.brand} asistanıyım.` +
+          (cnt ? `<br>Hesabında <b>${cnt} sipariş</b> görünüyor — durumunu sorabilir, iade talebi oluşturabilirsin.`
+               : `<br>Ürün seçimi, kargo, montaj, iade... ne istersen sor.`));
+      } else {
+        botSay(`${selam()} 👋 Ben <b>${BOT}</b>, ${SITE.brand}'nın yapay zekâ asistanıyım.<br>Ürün seçimi, fiyat, kargo, montaj, 3D önizleme, iade... aklına ne takılırsa yaz. 🙂<br><br>💡 <a href="giris.html">Üye olursan</a> siparişlerini buradan takip edebilirsin.`);
+      }
     }, 500);
   }
   function toggle() {
@@ -206,8 +217,26 @@
 
     // iade / garanti
     if (has(t, "iade", "degisim", "geri gonder", "cayma", "iade et")) {
-      botSay(`↩️ <b>İade & değişim:</b><br>• Teslimattan itibaren <b>14 gün</b> koşulsuz iade.<br>• Ürün monte edilmemiş ve orijinal ambalajında olmalı.<br>• Hasarlı/eksik parça olursa <b>ücretsiz yedek parça</b> gönderiyoruz — iadeye gerek kalmaz.<br>• Talep: ${SITE.email}`); return;
+      const u = (typeof AUTH !== "undefined") ? AUTH.current() : null;
+      const ords = u ? AUTH.myOrders() : [];
+      let ek = "";
+      if (ords.length) {
+        const o = ords[0];
+        ek = `<br><br>Son siparişin <b>${o.no}</b> (${new Date(o.date).toLocaleDateString("tr-TR")}). ` +
+             `<a href="iade.html?no=${encodeURIComponent(o.no)}&mail=${encodeURIComponent(o.email)}">Bu sipariş için iade talebi oluştur →</a>`;
+      }
+      botSay(`↩️ <b>İade çok kolay:</b><br>` +
+        `1. <a href="iade.html">İade Talebi sayfasını</a> aç (üst menüde <b>İade</b>).<br>` +
+        `2. <b>Sipariş numaran + e-postan</b> ile siparişini doğrula.<br>` +
+        `3. İade sebebini seç ve <b>ürünün fotoğrafını</b> ekle.<br>` +
+        `4. Talebini gönder — sonucu e-posta ile bildiririz.<br><br>` +
+        `• Teslimattan itibaren <b>14 gün</b> koşulsuz iade hakkın var.<br>` +
+        `• Ürün <b>monte edilmemiş</b> ve orijinal ambalajında olmalı.<br>` +
+        `• Hasarlı/eksik parçada <b>ücretsiz yedek parça</b> gönderiyoruz — iadeye gerek kalmaz.` + ek);
+      quickReplies(u ? ["Siparişlerim", "Kargo & teslimat", "Garanti"] : ["İade sayfasını aç", "Sipariş takibi", "Kargo & teslimat"]);
+      return;
     }
+    if (has(t, "iade sayfasi", "iade sayfasını aç")) { location.href = "iade.html"; return; }
     if (has(t, "garanti", "bozul", "kirik", "hasar", "eksik parca", "arizali")) {
       botSay(`🛡️ Tüm ürünler <b>2 yıl garantili</b>.<br>Kargo hasarı veya eksik parçada, fotoğrafla ${SITE.email} adresine yazın — <b>48 saat içinde</b> yedek parçanız ücretsiz kargolanır. Ömür boyu yedek parça desteğimiz var.`); return;
     }
@@ -258,8 +287,31 @@
     if (has(t, "sepet", "satin al", "nasil eklerim", "siparis ver", "nasil alirim", "order")) {
       botSay(`🛒 Çok kolay:<br>1. Ürün sayfasında <b>"Sepete Ekle"</b>.<br>2. Sağ üstteki <b>Sepet</b>'e gidin.<br>3. <b>"Ödemeye Geç"</b> ile adres + ödeme.<br>Sipariş onayınız e-postaya gelir. ✅` + (ctx.lastProduct ? card(ctx.lastProduct) : "")); return;
     }
-    if (has(t, "siparisim nerede", "takip", "siparis durumu", "nerede kaldi")) {
-      botSay(`📦 Sipariş onay e-postanızdaki takip bağlantısını kullanabilir ya da sipariş numaranızla ${SITE.email} adresine yazabilirsiniz.`); return;
+    if (has(t, "siparisim", "siparislerim", "siparisim nerede", "takip", "siparis durumu", "nerede kaldi", "kargom")) {
+      const u = (typeof AUTH !== "undefined") ? AUTH.current() : null;
+      if (u) {
+        const ords = AUTH.myOrders();
+        if (!ords.length) { botSay(`Hesabında henüz sipariş görünmüyor. <a href="urunler.html">Koleksiyona göz at →</a>`); return; }
+        botSay(`📦 <b>Siparişlerin:</b><br>` + ords.slice(0,4).map(o =>
+          `• <b>${o.no}</b> — ${o.total} · <b>${o.status||"Yeni"}</b> (${new Date(o.date).toLocaleDateString("tr-TR")})<br>` +
+          `&nbsp;&nbsp;<a href="siparis-takip.html?no=${encodeURIComponent(o.no)}&mail=${encodeURIComponent(o.email)}">Detay</a> · ` +
+          `<a href="iade.html?no=${encodeURIComponent(o.no)}&mail=${encodeURIComponent(o.email)}">İade</a>`).join("<br>") +
+          `<br><br><a href="hesabim.html?t=orders">Tüm siparişlerim →</a>`);
+        quickReplies(["İade nasıl yapılır?", "Kargo & teslimat", "Garanti"]);
+        return;
+      }
+      botSay(`📦 Siparişini iki şekilde takip edebilirsin:<br>` +
+        `• <a href="siparis-takip.html">Sipariş Takibi sayfasından</a> — sipariş numaran + e-postanla.<br>` +
+        `• <a href="giris.html">Üye olursan</a> tüm siparişlerin "Siparişlerim" bölümünde listelenir.`);
+      quickReplies(["Sipariş takibi", "Üye ol", "İade nasıl yapılır?"]);
+      return;
+    }
+    // üyelik soruları
+    if (has(t, "uye", "uyelik", "kayit ol", "hesap ac", "giris yap", "sifre")) {
+      const u = (typeof AUTH !== "undefined") ? AUTH.current() : null;
+      if (u) { botSay(`Zaten giriş yapmışsın 🙂 <b>${u.name}</b> (${u.email}).<br><a href="hesabim.html">Hesabım sayfası →</a>`); return; }
+      botSay(`👤 <b>Üyelik ücretsiz!</b> Üye olursan:<br>• Siparişlerin tek yerde listelenir<br>• Sipariş durumunu anında görürsün<br>• İade talebini tek tıkla oluşturursun<br>• Kampanyalardan ilk sen haberdar olursun<br><br><a href="giris.html?mode=reg">Hemen üye ol →</a> · <a href="giris.html">Giriş yap</a>`);
+      return;
     }
 
     // ürün adı geçtiyse detay

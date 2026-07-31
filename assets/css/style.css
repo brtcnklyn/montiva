@@ -70,14 +70,15 @@ h1, h2, h3, h4 { color: var(--ink); letter-spacing: -.02em; font-weight: 800; li
 
 /* ---------- header ---------- */
 header.site { position: sticky; top: 0; z-index: 900; background: rgba(255,255,255,.96); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
-header.site .container { display: flex; align-items: center; gap: 28px; height: 78px; }
+header.site .container { display: flex; align-items: center; gap: 16px; height: 78px; }
+.logo > span:not(.mark) { white-space: nowrap; }
 .logo { display: flex; align-items: center; gap: 12px; color: var(--ink); font-weight: 900; font-size: 1.4rem; letter-spacing: .04em; }
 .logo .mark { width: 42px; height: 42px; border-radius: 9px; display: grid; place-items: center; background: var(--primary); color: #fff; }
 .logo .mark .ic-svg { stroke-width: 1.9; }
 .logo small { letter-spacing: .22em; font-size: .52rem; }
 .logo small { display: block; font-size: .54rem; font-weight: 600; color: var(--muted); letter-spacing: .28em; margin-top: 0; }
 nav.main { display: flex; gap: 2px; margin-left: auto; }
-nav.main a { color: var(--ink-2); font-size: .82rem; font-weight: 600; padding: 10px 15px; border-radius: 7px; transition: .16s; text-transform: uppercase; letter-spacing: .04em; }
+nav.main a { color: var(--ink-2); font-size: .8rem; font-weight: 600; padding: 10px 12px; border-radius: 7px; transition: .16s; text-transform: uppercase; letter-spacing: .03em; white-space: nowrap; }
 nav.main a:hover, nav.main a.active { color: var(--primary); background: var(--primary-050); }
 .cart-btn { position: relative; display: flex; align-items: center; gap: 9px; background: var(--primary); color: #fff; border: none; padding: 11px 20px; border-radius: 7px; font-weight: 700; font-size: .84rem; letter-spacing: .03em; text-transform: uppercase; transition: .16s; }
 .cart-btn:hover { background: var(--primary-600); }
@@ -410,6 +411,81 @@ table.specs td:first-child { color: var(--muted); width: 42%; font-weight: 600; 
 .demo-note { font-size: .78rem; color: var(--amber); background: var(--amber-050); border: 1px solid #EAD8B4; border-radius: 7px; padding: 10px 13px; margin-top: 10px; display: flex; align-items: flex-start; gap: 8px; }
 .demo-note .ic-svg { flex: none; margin-top: 1px; }
 
+/* ---------- profil ikonu & menüsü ---------- */
+.head-actions { display: flex; align-items: center; gap: 12px; }
+.profile-wrap { position: relative; }
+.icon-round { width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--line-2); background: #fff; color: var(--ink); display: grid; place-items: center; transition: .16s; }
+.icon-round:hover { border-color: var(--primary); color: var(--primary); }
+.icon-round.is-member { background: var(--primary); border-color: var(--primary); color: #fff; }
+.profile-menu { position: absolute; right: 0; top: calc(100% + 12px); width: 268px; background: #fff; border: 1px solid var(--line);
+  border-radius: 12px; box-shadow: var(--shadow); padding: 8px; opacity: 0; visibility: hidden; transform: translateY(-8px); transition: .18s; z-index: 950; }
+.profile-menu.open { opacity: 1; visibility: visible; transform: translateY(0); }
+.pm-head { padding: 12px 14px 14px; border-bottom: 1px solid var(--line); margin-bottom: 6px; }
+.pm-head b { display: block; font-size: .95rem; color: var(--ink); }
+.pm-head span { font-size: .78rem; color: var(--muted); word-break: break-all; }
+.pm-head.guest span { line-height: 1.4; }
+.profile-menu a { display: flex; align-items: center; gap: 11px; padding: 11px 14px; border-radius: 8px; font-size: .9rem; font-weight: 600; color: var(--ink-2); cursor: pointer; transition: .14s; }
+.profile-menu a:hover { background: var(--bg-2); color: var(--ink); }
+.profile-menu a.pm-cta { background: var(--primary); color: #fff; }
+.profile-menu a.pm-cta:hover { background: var(--primary-600); color: #fff; }
+.profile-menu a.pm-danger { color: var(--red); }
+.profile-menu a.pm-danger:hover { background: #FBEAEA; }
+.pm-sep { height: 1px; background: var(--line); margin: 6px 10px; }
+
+/* ---------- giriş / kayıt ---------- */
+.auth-wrap { min-height: 72vh; display: grid; place-items: center; padding: 56px 20px 90px; background: var(--bg-2); }
+.auth-card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 40px 36px; width: min(460px, 100%); box-shadow: var(--shadow-sm); }
+.auth-logo { width: 128px; height: auto; margin: 0 auto 26px; display: block; }
+.auth-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--bg-2); padding: 5px; border-radius: 10px; margin-bottom: 26px; }
+.auth-tabs button { border: none; background: none; padding: 11px; border-radius: 7px; font-weight: 700; font-size: .88rem; color: var(--muted); transition: .15s; }
+.auth-tabs button.active { background: #fff; color: var(--ink); box-shadow: var(--shadow-xs); }
+.auth-form .field { margin-bottom: 15px; }
+.opt { font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--muted); }
+.auth-alt { text-align: center; font-size: .87rem; color: var(--muted); margin-top: 16px; }
+.auth-alt a { color: var(--primary); font-weight: 700; cursor: pointer; }
+.auth-guest { display: flex; align-items: center; gap: 14px; margin: 26px 0 16px; color: var(--muted); font-size: .8rem; }
+.auth-guest::before, .auth-guest::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+/* ---------- hesabım ---------- */
+.acct-layout { display: grid; grid-template-columns: 254px 1fr; gap: 30px; padding: 44px 0 90px; align-items: start; }
+.acct-nav { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 8px; position: sticky; top: 96px; }
+.acct-nav a { display: flex; align-items: center; gap: 11px; padding: 13px 15px; border-radius: 8px; font-size: .92rem; font-weight: 600; color: var(--ink-2); cursor: pointer; transition: .14s; }
+.acct-nav a:hover { background: var(--bg-2); }
+.acct-nav a.active { background: var(--primary); color: #fff; }
+.acct-nav a.sep-top { margin-top: 8px; border-top: 1px solid var(--line); border-radius: 0 0 8px 8px; padding-top: 15px; }
+.acct-nav a.danger { color: var(--red); }
+.acct-order { border: 1px solid var(--line); border-radius: 11px; padding: 18px; margin-bottom: 14px; }
+.ao-head { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 14px; align-items: center; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.ao-head > div { display: flex; flex-direction: column; gap: 2px; }
+.ao-head span.muted { font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; }
+.ao-head b { font-size: .95rem; color: var(--ink); }
+.ao-items { display: flex; flex-direction: column; gap: 4px; padding: 13px 0; font-size: .88rem; color: var(--ink-2); }
+.ao-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn-ghost-sm { background: #fff; border: 1.5px solid var(--line-2); color: var(--ink); padding: 9px 15px; border-radius: 7px; font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
+.btn-ghost-sm:hover { border-color: var(--ink); }
+.acct-empty { text-align: center; padding: 50px 20px; color: var(--muted); }
+.acct-empty svg { color: var(--line-2); margin-bottom: 14px; }
+.acct-empty p { margin-bottom: 20px; }
+
+/* ödeme: hesap seçimi */
+.acct-choice { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+.acct-choice label { border: 1.5px solid var(--line-2); border-radius: 10px; padding: 15px; cursor: pointer; transition: .15s; background: #fff; display: flex; gap: 11px; align-items: flex-start; }
+.acct-choice label:has(input:checked) { border-color: var(--primary); background: var(--primary-050); }
+.acct-choice input { accent-color: var(--primary); margin-top: 2px; }
+.acct-choice b { display: block; font-size: .92rem; color: var(--ink); }
+.acct-choice span { font-size: .78rem; color: var(--muted); }
+.member-banner { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: var(--primary-050); border: 1px solid var(--primary-100); border-radius: 10px; margin-bottom: 18px; font-size: .9rem; color: var(--ink-2); }
+.member-banner b { color: var(--ink); }
+
+@media (max-width: 860px) {
+  .acct-layout { grid-template-columns: 1fr; }
+  .acct-nav { position: static; display: flex; flex-wrap: wrap; gap: 4px; }
+  .acct-nav a { flex: 1; justify-content: center; min-width: 140px; }
+  .acct-nav a.sep-top { border-top: none; }
+  .acct-choice { grid-template-columns: 1fr; }
+  .profile-menu { width: 250px; }
+}
+
 /* ---------- marka bloğu (hakkımızda) ---------- */
 .brand-block { background: #fff; border-bottom: 1px solid var(--line); padding: 72px 0 66px; text-align: center; }
 .brand-logo { width: min(280px, 62%); height: auto; margin: 0 auto 26px; display: block; }
@@ -677,3 +753,6 @@ footer.site .logo .mark { background: var(--primary); }
   model-viewer { height: 380px; }
   .qty-row .btn { min-width: 150px; }
 }
+
+.mail-list { width: 100%; min-height: 90px; padding: 13px 15px; border: 1.5px solid var(--line-2); border-radius: 8px;
+  font-family: var(--font-mono); font-size: .8rem; color: var(--ink-2); background: var(--bg-2); resize: vertical; }

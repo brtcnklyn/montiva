@@ -67,6 +67,7 @@
     { id: "products", icon: "📦", label: "Ürünler & Stok" },
     { id: "orders", icon: "🧾", label: "Siparişler" },
     { id: "returns", icon: "↩️", label: "İade Talepleri" },
+    { id: "members", icon: "👤", label: "Üyeler" },
     { id: "messages", icon: "✉️", label: "Mesajlar" },
     { id: "content", icon: "📝", label: "Sayfa Metinleri" },
     { id: "settings", icon: "⚙️", label: "Ayarlar" }
@@ -94,7 +95,7 @@
     state.view = v;
     app().querySelectorAll(".admin-side a[data-view]").forEach(a => a.classList.toggle("active", a.dataset.view === v));
     ({ dashboard: renderDashboard, products: renderProducts, orders: renderOrders, returns: renderReturns,
-       messages: renderMessages, content: renderContent, settings: renderSettings }[v])();
+       members: renderMembers, messages: renderMessages, content: renderContent, settings: renderSettings }[v])();
   }
   function setView(html) { document.getElementById("admin-view").innerHTML = html; }
   function topbar(title, sub) { return `<div class="admin-topbar"><div><h1>${title}</h1><div class="sub">${sub}</div></div></div>`; }
@@ -393,6 +394,47 @@
     const all = DB.returns(); const r = all.find(x => x.no === no);
     if (r) { r.status = document.getElementById("ret-status").value; DB.saveReturns(all); }
     closeModal(); toast("✅ İade durumu güncellendi"); renderReturns();
+  }
+
+  /* ================= ÜYELER ================= */
+  function renderMembers() {
+    const users = (typeof AUTH !== "undefined") ? AUTH.allUsers() : [];
+    const izinli = users.filter(u => u.campaigns);
+    const mails = izinli.map(u => u.email).join(", ");
+    setView(`
+      ${topbar("Üyeler", "Kayıtlı müşteriler ve kampanya e-posta izinleri")}
+      <div class="stat-grid">
+        <div class="stat"><div class="ic">👤</div><b>${users.length}</b><span>Toplam üye</span></div>
+        <div class="stat"><div class="ic">✉️</div><b>${izinli.length}</b><span>Kampanya izni veren</span></div>
+        <div class="stat"><div class="ic">🧾</div><b>${users.filter(u => DB.orders().some(o => (o.email||"").toLowerCase() === u.email)).length}</b><span>Sipariş vermiş üye</span></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div><h2>Kampanya E-posta Listesi</h2><div class="desc">İzin veren üyelerin adresleri — kopyalayıp toplu e-posta aracınıza yapıştırın</div></div>
+          ${izinli.length ? `<a class="btn-sm btn-save" href="mailto:?bcc=${encodeURIComponent(izinli.map(u=>u.email).join(","))}&subject=${encodeURIComponent(DB.site().brand + " — Kampanya")}">✉️ Toplu E-posta Aç</a>` : ""}
+        </div>
+        ${izinli.length ? `<textarea readonly class="mail-list" onclick="this.select()">${esc(mails)}</textarea>
+          <p class="muted" style="font-size:.82rem;margin-top:8px">Tıklayınca tümü seçilir. Toplu gönderimde adresleri <b>BCC</b> alanına koyun.</p>`
+        : `<p class="muted">Henüz kampanya izni veren üye yok.</p>`}
+      </div>
+
+      <div class="panel">
+        <h2>Üye Listesi</h2><div class="desc">Şifreler görüntülenemez (güvenlik için özetlenerek saklanır)</div>
+        ${users.length ? `<table class="atable"><thead><tr><th>Ad Soyad</th><th>E-posta</th><th>Telefon</th><th>Sipariş</th><th>Kampanya</th><th>Kayıt</th></tr></thead><tbody>
+          ${users.map(u => {
+            const sip = DB.orders().filter(o => (o.email||"").toLowerCase() === u.email).length;
+            return `<tr>
+              <td><b>${esc(u.name)}</b></td>
+              <td>${esc(u.email)}</td>
+              <td>${esc(u.phone || "-")}</td>
+              <td>${sip}</td>
+              <td>${u.campaigns ? '<span class="pill green">İzinli</span>' : '<span class="pill grey">Hayır</span>'}</td>
+              <td>${new Date(u.created).toLocaleDateString("tr-TR")}</td>
+            </tr>`;
+          }).join("")}
+        </tbody></table>` : `<p class="muted">Henüz üye kaydı yok. Müşteriler <b>giris.html</b> sayfasından veya ödeme sırasında üye olabilir.</p>`}
+      </div>`);
   }
 
   /* ================= MESAJLAR ================= */

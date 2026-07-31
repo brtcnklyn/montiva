@@ -68,10 +68,17 @@ function renderChrome(active) {
         <a href="index.html" ${active === "home" ? 'class="active"' : ""}>Ana Sayfa</a>
         <a href="urunler.html" id="nav-urunler" class="has-caret ${active === "products" ? "active" : ""}">Ürünler ${icon("chevron", 15)}</a>
         <a href="hakkimizda.html" ${active === "about" ? 'class="active"' : ""}>Hakkımızda</a>
+        <a href="iade.html" ${active === "returns" ? 'class="active"' : ""}>İade</a>
         <a href="sss.html" ${active === "faq" ? 'class="active"' : ""}>S.S.S.</a>
         <a href="iletisim.html" ${active === "contact" ? 'class="active"' : ""}>İletişim</a>
       </nav>
-      <a href="sepet.html"><button class="cart-btn">${icon("cart", 18)} <span class="lbl">Sepet</span><span class="cart-count">0</span></button></a>
+      <div class="head-actions">
+        <div class="profile-wrap">
+          <button class="icon-round" id="profile-btn" title="Hesabım" aria-haspopup="true">${icon("user", 19)}</button>
+          <div class="profile-menu" id="profile-menu"></div>
+        </div>
+        <a href="sepet.html"><button class="cart-btn">${icon("cart", 18)} <span class="lbl">Sepet</span><span class="cart-count">0</span></button></a>
+      </div>
     </div>
     ${buildMega()}
   </header>`;
@@ -116,6 +123,44 @@ function renderChrome(active) {
   updateCartBadge();
   applyContent(document);
   attachMega();
+  renderProfileMenu();
+}
+
+/* ---------------- profil menüsü ---------------- */
+function renderProfileMenu() {
+  const btn = document.getElementById("profile-btn");
+  const menu = document.getElementById("profile-menu");
+  if (!btn || !menu || typeof AUTH === "undefined") return;
+  const u = AUTH.current();
+
+  menu.innerHTML = u ? `
+    <div class="pm-head">
+      <b>${u.name}</b>
+      <span>${u.email}</span>
+    </div>
+    <a href="hesabim.html?t=profile">${icon("user",16)} Profil Bilgilerim</a>
+    <a href="hesabim.html?t=orders">${icon("package",16)} Siparişlerim</a>
+    <a href="hesabim.html?t=returns">${icon("return",16)} İade Takibi</a>
+    <a href="siparis-takip.html">${icon("truck",16)} Sipariş Takibi</a>
+    <a class="pm-danger" id="pm-logout">${icon("logout",16)} Çıkış Yap</a>`
+  : `
+    <div class="pm-head guest">
+      <b>Hoş geldiniz</b>
+      <span>Siparişlerinizi takip etmek için giriş yapın</span>
+    </div>
+    <a class="pm-cta" href="giris.html">${icon("user",16)} Giriş Yap</a>
+    <a href="giris.html?mode=reg">${icon("sparkle",16)} Üye Ol</a>
+    <div class="pm-sep"></div>
+    <a href="siparis-takip.html">${icon("truck",16)} Sipariş Takibi</a>
+    <a href="iade.html">${icon("return",16)} İade Talebi</a>`;
+
+  if (u) btn.classList.add("is-member"); else btn.classList.remove("is-member");
+
+  btn.onclick = (e) => { e.stopPropagation(); menu.classList.toggle("open"); };
+  menu.onclick = (e) => e.stopPropagation();
+  document.addEventListener("click", () => menu.classList.remove("open"));
+  const out = document.getElementById("pm-logout");
+  if (out) out.onclick = () => { AUTH.logout(); location.href = "index.html"; };
 }
 
 /* ---------------- mega menü (kategoriler + görseller) ---------------- */

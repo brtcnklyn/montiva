@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giriş Yap / Üye Ol — NOVORA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css?v=5">
+</head>
+<body>
+
+<main>
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <img src="assets/img/novora-logo.svg" alt="NOVORA" class="auth-logo">
+      <div class="auth-tabs">
+        <button id="tab-login" class="active" onclick="showTab('login')">Giriş Yap</button>
+        <button id="tab-reg" onclick="showTab('reg')">Üye Ol</button>
+      </div>
+
+      <!-- GİRİŞ -->
+      <form id="form-login" class="auth-form" novalidate>
+        <div class="field"><label>E-posta</label><input id="l-mail" type="email" autocomplete="email" placeholder="ornek@mail.com"></div>
+        <div class="field"><label>Şifre</label><input id="l-pass" type="password" autocomplete="current-password" placeholder="••••••"></div>
+        <div class="lookup-msg" id="l-msg"></div>
+        <button type="submit" class="btn btn-primary" style="width:100%">Giriş Yap</button>
+        <p class="auth-alt">Hesabın yok mu? <a onclick="showTab('reg')">Hemen üye ol</a></p>
+      </form>
+
+      <!-- KAYIT -->
+      <form id="form-reg" class="auth-form" style="display:none" novalidate>
+        <div class="field"><label>Ad Soyad</label><input id="r-name" autocomplete="name" placeholder="Adınız Soyadınız"></div>
+        <div class="field"><label>E-posta</label><input id="r-mail2" type="email" autocomplete="email" placeholder="ornek@mail.com"></div>
+        <div class="field"><label>Telefon <span class="opt">(isteğe bağlı)</span></label><input id="r-tel" type="tel" autocomplete="tel" placeholder="05xx xxx xx xx"></div>
+        <div class="field"><label>Şifre <span class="opt">(en az 6 karakter)</span></label><input id="r-pass" type="password" autocomplete="new-password" placeholder="••••••"></div>
+        <label class="check-line"><input type="checkbox" id="r-camp" checked> <span>Kampanya ve yeni ürün duyurularını e-posta ile almak istiyorum.</span></label>
+        <label class="check-line"><input type="checkbox" id="r-kvkk2"> <span><a href="kvkk.html" target="_blank">KVKK & Gizlilik Politikası</a>'nı okudum, kabul ediyorum.</span></label>
+        <div class="lookup-msg" id="r-msg2"></div>
+        <button type="submit" class="btn btn-primary" style="width:100%">Hesabımı Oluştur</button>
+        <p class="auth-alt">Zaten üye misin? <a onclick="showTab('login')">Giriş yap</a></p>
+      </form>
+
+      <div class="auth-guest">
+        <span>veya</span>
+      </div>
+      <a href="urunler.html" class="btn btn-ghost" style="width:100%" id="guest-btn">Üye olmadan alışverişe devam et</a>
+    </div>
+  </div>
+</main>
+
+<script src="assets/js/icons.js?v=5"></script>
+<script src="assets/js/seed.js?v=5"></script>
+<script src="assets/js/db.js?v=5"></script>
+<script src="assets/js/auth.js?v=5"></script>
+<script src="assets/js/store.js?v=5"></script>
+<script src="assets/js/chat.js?v=5"></script>
+<script>
+  renderChrome();
+  const next = new URLSearchParams(location.search).get("next") || "hesabim.html";
+  if (new URLSearchParams(location.search).get("mode") === "reg") showTab("reg");
+  if (AUTH.current()) location.replace(next);
+  document.getElementById("guest-btn").innerHTML = "Üye olmadan alışverişe devam et " + icon("arrowRight", 16);
+
+  function showTab(t) {
+    const login = t === "login";
+    document.getElementById("tab-login").classList.toggle("active", login);
+    document.getElementById("tab-reg").classList.toggle("active", !login);
+    document.getElementById("form-login").style.display = login ? "block" : "none";
+    document.getElementById("form-reg").style.display = login ? "none" : "block";
+  }
+  const say = (id, cls, txt) => {
+    const el = document.getElementById(id);
+    el.className = "lookup-msg " + cls;
+    el.innerHTML = (cls === "err" ? icon("alert",15) : icon("check",15)) + " " + txt;
+  };
+
+  document.getElementById("form-login").addEventListener("submit", async e => {
+    e.preventDefault();
+    try {
+      const u = await AUTH.login(document.getElementById("l-mail").value, document.getElementById("l-pass").value);
+      say("l-msg", "ok", `Hoş geldin ${u.name.split(" ")[0]}! Yönlendiriliyorsun...`);
+      setTimeout(() => location.href = next, 600);
+    } catch (err) { say("l-msg", "err", err.message); }
+  });
+
+  document.getElementById("form-reg").addEventListener("submit", async e => {
+    e.preventDefault();
+    if (!document.getElementById("r-kvkk2").checked) return say("r-msg2", "err", "Devam etmek için KVKK onayı gerekli.");
+    try {
+      const u = await AUTH.register({
+        name: document.getElementById("r-name").value,
+        email: document.getElementById("r-mail2").value,
+        phone: document.getElementById("r-tel").value,
+        password: document.getElementById("r-pass").value,
+        campaigns: document.getElementById("r-camp").checked
+      });
+      say("r-msg2", "ok", `Hesabın oluşturuldu, hoş geldin ${u.name.split(" ")[0]}!`);
+      setTimeout(() => location.href = next, 700);
+    } catch (err) { say("r-msg2", "err", err.message); }
+  });
+</script>
+</body>
+</html>

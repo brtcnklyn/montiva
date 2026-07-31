@@ -20,6 +20,7 @@
 <script src="assets/js/icons.js?v=5"></script>
 <script src="assets/js/seed.js?v=5"></script>
 <script src="assets/js/db.js?v=5"></script>
+<script src="assets/js/auth.js?v=5"></script>
 <script src="assets/js/store.js?v=5"></script>
 <script src="assets/js/chat.js?v=5"></script>
 <script>
@@ -42,6 +43,7 @@
       <div>
         <div class="form-card">
           <h3><span class="n">1</span> Teslimat Bilgileri</h3>
+          <div id="acct-zone"></div>
           <div class="frow">
             <div class="field"><label>Ad *</label><input id="f-ad" required></div>
             <div class="field"><label>Soyad *</label><input id="f-soyad" required></div>
@@ -108,7 +110,41 @@
       document.getElementById("grandTotal").textContent = fmtPrice(g);
     };
 
-    document.getElementById("checkoutForm").addEventListener("submit", function (e) {
+    /* ---- üyelik: giriş yapmışsa bilgileri doldur, değilse hesap seçeneği sun ---- */
+    const zone = document.getElementById("acct-zone");
+    const me = AUTH.current();
+    if (me) {
+      zone.innerHTML = `<div class="member-banner">${icon("user",18)}
+        <div><b>${me.name}</b> olarak sipariş veriyorsunuz — bilgileriniz dolduruldu.
+        <br><span class="muted" style="font-size:.8rem">Sipariş, hesabınızın "Siparişlerim" bölümüne eklenecek.</span></div></div>`;
+      const [ad, ...soyad] = (me.name || "").split(" ");
+      const set = (id, v) => { if (v) document.getElementById(id).value = v; };
+      set("f-ad", ad); set("f-soyad", soyad.join(" "));
+      set("f-email", me.email); set("f-tel", me.phone);
+      set("f-il", me.city); set("f-ilce", me.district); set("f-adres", me.address);
+    } else {
+      zone.innerHTML = `
+        <div class="acct-choice">
+          <label><input type="radio" name="acct" value="guest" checked>
+            <div><b>Üye olmadan devam et</b><span>Hızlıca sipariş verin</span></div></label>
+          <label><input type="radio" name="acct" value="create">
+            <div><b>Hesap oluştur</b><span>Siparişlerinizi takip edin, kampanyalardan haberdar olun</span></div></label>
+        </div>
+        <div id="acct-pass" style="display:none">
+          <div class="field"><label>Şifre belirleyin <span class="opt">(en az 6 karakter)</span></label>
+            <input id="f-pass" type="password" autocomplete="new-password" placeholder="••••••"></div>
+          <label class="check-line"><input type="checkbox" id="f-camp" checked>
+            <span>Kampanya ve yeni ürün duyurularını e-posta ile almak istiyorum.</span></label>
+        </div>
+        <p class="muted" style="font-size:.84rem;margin:-4px 0 16px">
+          Zaten üye misiniz? <a href="giris.html?next=odeme.html" style="color:var(--primary);font-weight:700">Giriş yapın</a></p>`;
+      document.querySelectorAll('input[name="acct"]').forEach(r => r.addEventListener("change", () => {
+        document.getElementById("acct-pass").style.display =
+          document.querySelector('input[name="acct"]:checked').value === "create" ? "block" : "none";
+      }));
+    }
+
+    document.getElementById("checkoutForm").addEventListener("submit", async function (e) {
       e.preventDefault();
       const ids = ["f-ad", "f-soyad", "f-email", "f-tel", "f-il", "f-ilce", "f-adres"];
       let ok = true;
@@ -119,6 +155,27 @@
         if (bad) ok = false;
       });
       if (!ok) { toast(icon("alert",15) + " Lütfen zorunlu alanları doldurun"); return; }
+
+      // hesap oluştur seçildiyse önce üyeliği aç
+      const accSel = document.querySelector('input[name="acct"]:checked');
+      if (accSel && accSel.value === "create") {
+        const pw = document.getElementById("f-pass").value;
+        if (!pw || pw.length < 6) { toast(icon("alert",15) + " Şifre en az 6 karakter olmalı"); return; }
+        try {
+          await AUTH.register({
+            name: document.getElementById("f-ad").value + " " + document.getElementById("f-soyad").value,
+            email: document.getElementById("f-email").value,
+            phone: document.getElementById("f-tel").value,
+            password: pw,
+            campaigns: document.getElementById("f-camp").checked
+          });
+          AUTH.updateProfile({
+            city: document.getElementById("f-il").value,
+            district: document.getElementById("f-ilce").value,
+            address: document.getElementById("f-adres").value
+          });
+        } catch (err) { toast(icon("alert",15) + " " + err.message); return; }
+      }
 
       const payType = document.querySelector('input[name="pay"]:checked').value;
       const orderNo = "MNT-" + Date.now().toString().slice(-8);
