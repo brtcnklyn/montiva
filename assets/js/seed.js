@@ -16,7 +16,10 @@ const DEFAULT_SITE = {
   adminPass: "montiva2026",
   heroImage: "assets/img/urun/lumen-koleksiyon.webp",
   arSpotProduct: "aurelio-sage",
-  arBase: "https://brtcnklyn.github.io/montiva"
+  arBase: "https://brtcnklyn.github.io/montiva",
+  emailServiceId: "",
+  emailTemplateId: "",
+  emailPublicKey: ""
 };
 
 const P = "assets/img/urun/";

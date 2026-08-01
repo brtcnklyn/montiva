@@ -562,6 +562,27 @@
         <div class="cfield"><label>Genel AR/QR Adresi (site yayına alınınca kendi alan adınız)</label><input id="s-arbase" value="${esc(s.arBase || "")}" placeholder="https://siteniz.com"></div>
       </div>
       <div class="panel">
+        <h2>E-posta Servisi (şifre sıfırlama kodu)</h2>
+        <div class="desc">Müşteriler "şifremi unuttum" dediğinde e-postalarına <b>gerçek doğrulama kodu</b> gitmesi için gerekli.
+          Boş bırakılırsa sistem test modunda çalışır (kod ekranda gösterilir, e-posta gitmez).</div>
+        <div class="demo-note" style="margin-bottom:16px">
+          <span><b>Nasıl bağlanır?</b> <a href="https://www.emailjs.com" target="_blank" rel="noopener">emailjs.com</a>'da ücretsiz hesap açın →
+            e-posta servisinizi (Gmail vb.) bağlayın → bir şablon oluşturun (içine <b>{{passcode}}</b> ve <b>{{to_email}}</b> koyun) →
+            aşağıdaki 3 değeri buraya yapıştırın. Aylık 200 e-posta ücretsizdir.</span>
+        </div>
+        <div class="frow">
+          <div class="cfield"><label>Service ID</label><input id="s-mail-svc" value="${esc(s.emailServiceId || "")}" placeholder="service_xxxxxxx"></div>
+          <div class="cfield"><label>Template ID</label><input id="s-mail-tpl" value="${esc(s.emailTemplateId || "")}" placeholder="template_xxxxxxx"></div>
+        </div>
+        <div class="cfield"><label>Public Key</label><input id="s-mail-key" value="${esc(s.emailPublicKey || "")}" placeholder="xxxxxxxxxxxxxxx"></div>
+        <div class="mail-status ${(s.emailServiceId && s.emailTemplateId && s.emailPublicKey) ? "on" : "off"}">
+          ${(s.emailServiceId && s.emailTemplateId && s.emailPublicKey)
+            ? "✓ E-posta servisi bağlı — kodlar gerçek e-posta ile gönderilir."
+            : "⚠ Bağlı değil — sistem test modunda (kod ekranda gösterilir)."}
+        </div>
+      </div>
+
+      <div class="panel">
         <h2>Hero Arka Plan Görseli</h2><div class="desc">Ana sayfanın en üst bölümünün arka planı. Kendi tasarımınızı/görselinizi masaüstünden yükleyin (yatay/geniş görsel önerilir).</div>
         <div class="upload-row">
           <input type="file" id="s-heroimg-file" accept="image/*,.svg" style="display:none" onchange="ADMIN.onHeroFile()">
@@ -594,6 +615,9 @@
     s.arBase = g("s-arbase").trim();
     s.arSpotProduct = g("s-arprod");
     s.heroImage = g("s-heroimg").trim() || "assets/img/hero-bg.svg";
+    s.emailServiceId = g("s-mail-svc").trim();
+    s.emailTemplateId = g("s-mail-tpl").trim();
+    s.emailPublicKey = g("s-mail-key").trim();
     try { DB.saveSite(s); }
     catch (e) { toast("⚠️ Kayıt alanı doldu — yüklediğiniz görsel çok büyük olabilir."); return; }
     SITE = DB.site(); toast("✅ Ayarlar kaydedildi"); renderApp();

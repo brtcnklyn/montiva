@@ -6,7 +6,7 @@
   <title>Giriş Yap / Üye Ol — NOVORA</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=6">
+  <link rel="stylesheet" href="assets/css/style.css?v=7">
 </head>
 <body>
 
@@ -39,20 +39,29 @@
         <div id="fg-step1">
           <div class="field"><label>E-posta</label><input id="fg-mail" type="email" autocomplete="email" placeholder="ornek@mail.com"></div>
           <div class="lookup-msg" id="fg-msg"></div>
-          <button type="button" class="btn btn-primary" style="width:100%" onclick="hesabiBul()">Devam Et</button>
+          <button type="button" class="btn btn-primary" style="width:100%" id="fg-send-btn" onclick="koduGonder()">Doğrulama Kodu Gönder</button>
         </div>
 
-        <!-- adım 2: doğrulama + yeni şifre -->
+        <!-- adım 2: e-postaya gelen kod -->
         <div id="fg-step2" style="display:none">
           <div class="fg-found" id="fg-found"></div>
-          <div class="field" id="fg-tel-wrap">
-            <label>Telefonunuzun son 4 hanesi</label>
-            <input id="fg-last4" inputmode="numeric" maxlength="4" placeholder="••••">
+          <div class="field">
+            <label>E-postanıza gelen 6 haneli kod</label>
+            <input id="fg-code" class="code-input" inputmode="numeric" maxlength="6" placeholder="••••••" autocomplete="one-time-code">
           </div>
+          <div class="demo-note" id="fg-demo" style="display:none"></div>
+          <div class="lookup-msg" id="fg-msg2"></div>
+          <button type="button" class="btn btn-primary" style="width:100%" onclick="koduDogrula()">Kodu Doğrula</button>
+          <p class="auth-alt"><a onclick="koduGonder(true)" id="fg-resend">Kodu tekrar gönder</a></p>
+        </div>
+
+        <!-- adım 3: yeni şifre -->
+        <div id="fg-step3" style="display:none">
+          <div class="lookup-msg ok" style="display:flex">Kod doğrulandı — yeni şifrenizi belirleyin.</div>
           <div class="field"><label>Yeni Şifre <span class="opt">(en az 6 karakter)</span></label><input id="fg-pass" type="password" autocomplete="new-password" placeholder="••••••"></div>
           <div class="field"><label>Yeni Şifre (tekrar)</label><input id="fg-pass2" type="password" autocomplete="new-password" placeholder="••••••">
             <span class="pw-hint" id="fg-hint"></span></div>
-          <div class="lookup-msg" id="fg-msg2"></div>
+          <div class="lookup-msg" id="fg-msg3"></div>
           <button type="button" class="btn btn-primary" style="width:100%" onclick="sifreyiSifirla()">Şifremi Güncelle</button>
         </div>
 
@@ -82,12 +91,13 @@
   </div>
 </main>
 
-<script src="assets/js/icons.js?v=6"></script>
-<script src="assets/js/seed.js?v=6"></script>
-<script src="assets/js/db.js?v=6"></script>
-<script src="assets/js/auth.js?v=6"></script>
-<script src="assets/js/store.js?v=6"></script>
-<script src="assets/js/chat.js?v=6"></script>
+<script src="assets/js/icons.js?v=7"></script>
+<script src="assets/js/seed.js?v=7"></script>
+<script src="assets/js/db.js?v=7"></script>
+<script src="assets/js/auth.js?v=7"></script>
+<script src="assets/js/mailer.js?v=7"></script>
+<script src="assets/js/store.js?v=7"></script>
+<script src="assets/js/chat.js?v=7"></script>
 <script>
   renderChrome();
   const next = new URLSearchParams(location.search).get("next") || "hesabim.html";
@@ -104,8 +114,8 @@
     if (t === "forgot") {
       document.getElementById("fg-step1").style.display = "block";
       document.getElementById("fg-step2").style.display = "none";
-      document.getElementById("fg-msg").className = "lookup-msg";
-      document.getElementById("fg-msg2").className = "lookup-msg";
+      document.getElementById("fg-step3").style.display = "none";
+      ["fg-msg","fg-msg2","fg-msg3"].forEach(i => document.getElementById(i).className = "lookup-msg");
     }
   }
 
@@ -125,33 +135,75 @@
   pwWatch("r-pass", "r-pass2", "pw-hint");
   pwWatch("fg-pass", "fg-pass2", "fg-hint");
 
-  /* ---- şifremi unuttum ---- */
+  /* ---- şifremi unuttum: e-posta doğrulama kodu ---- */
   let fgUser = null;
-  function hesabiBul() {
+
+  async function koduGonder(tekrar) {
     const mail = document.getElementById("fg-mail").value.trim();
+    const btn = document.getElementById(tekrar ? "fg-resend" : "fg-send-btn");
+    const msgId = tekrar ? "fg-msg2" : "fg-msg";
+    const eski = btn.textContent;
+    btn.textContent = "Gönderiliyor..."; btn.style.pointerEvents = "none";
     try {
       const info = AUTH.resetInfo(mail);
-      fgUser = { email: mail, ...info };
+      const { code, name, expMin } = AUTH.issueResetCode(mail);
+      fgUser = { email: info.email, name };
+
+      let res;
+      try { res = await MAILER.sendResetCode({ toEmail: info.email, toName: name, code, expMin }); }
+      catch (err) {
+        say(msgId, "err", "E-posta gönderilemedi: " + err.message);
+        btn.textContent = eski; btn.style.pointerEvents = ""; return;
+      }
+
       document.getElementById("fg-msg").className = "lookup-msg";
       document.getElementById("fg-step1").style.display = "none";
       document.getElementById("fg-step2").style.display = "block";
+      document.getElementById("fg-step3").style.display = "none";
       document.getElementById("fg-found").innerHTML =
-        `${icon("user",16)} <div><b>${info.name}</b><span>${mail}</span></div>`;
-      // telefon kayıtlı değilse doğrulama adımını gizle
-      document.getElementById("fg-tel-wrap").style.display = info.hasPhone ? "block" : "none";
-      if (info.hasPhone) document.getElementById("fg-last4").focus();
-      else document.getElementById("fg-pass").focus();
-    } catch (e) { say("fg-msg", "err", e.message); }
+        `${icon("mail",16)} <div><b>${name}</b><span>Kod ${info.email} adresine gönderildi</span></div>`;
+
+      const demoBox = document.getElementById("fg-demo");
+      if (res.demo) {
+        demoBox.style.display = "flex";
+        demoBox.innerHTML = `${icon("alert",15)}<span><b>Test modu:</b> E-posta servisi henüz bağlı olmadığı için kod gönderilmedi.
+          Doğrulama kodunuz: <b class="demo-code">${code}</b><br>
+          <span style="font-size:.76rem">Gerçek e-posta göndermek için yönetim panelinden e-posta servisini bağlayın.</span></span>`;
+      } else {
+        demoBox.style.display = "none";
+        say("fg-msg2", "ok", "Kod e-postanıza gönderildi. Gelen kutunuzu (ve spam klasörünü) kontrol edin.");
+      }
+      document.getElementById("fg-code").value = "";
+      document.getElementById("fg-code").focus();
+    } catch (e) { say(msgId, "err", e.message); }
+    btn.textContent = eski; btn.style.pointerEvents = "";
+  }
+
+  function koduDogrula() {
+    const code = document.getElementById("fg-code").value.trim();
+    if (!code) return say("fg-msg2", "err", "Lütfen e-postanıza gelen kodu girin.");
+    try {
+      AUTH.verifyResetCode(fgUser.email, code);
+      document.getElementById("fg-step2").style.display = "none";
+      document.getElementById("fg-step3").style.display = "block";
+      document.getElementById("fg-pass").focus();
+    } catch (e) {
+      say("fg-msg2", "err", e.message);
+      if (e.message.includes("yeni kod")) {
+        document.getElementById("fg-step1").style.display = "block";
+        document.getElementById("fg-step2").style.display = "none";
+      }
+    }
   }
 
   async function sifreyiSifirla() {
     const p1 = document.getElementById("fg-pass").value, p2 = document.getElementById("fg-pass2").value;
-    if (p1 !== p2) return say("fg-msg2", "err", "Şifreler eşleşmiyor.");
+    if (p1 !== p2) return say("fg-msg3", "err", "Şifreler eşleşmiyor.");
     try {
-      const u = await AUTH.resetPassword(fgUser.email, document.getElementById("fg-last4").value, p1);
-      say("fg-msg2", "ok", `Şifren güncellendi, hoş geldin ${u.name.split(" ")[0]}! Yönlendiriliyorsun...`);
+      const u = await AUTH.resetPassword(fgUser.email, p1);
+      say("fg-msg3", "ok", `Şifren güncellendi, hoş geldin ${u.name.split(" ")[0]}! Yönlendiriliyorsun...`);
       setTimeout(() => location.href = next, 800);
-    } catch (e) { say("fg-msg2", "err", e.message); }
+    } catch (e) { say("fg-msg3", "err", e.message); }
   }
   const say = (id, cls, txt) => {
     const el = document.getElementById(id);

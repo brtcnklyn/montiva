@@ -86,30 +86,61 @@ const AUTH = (() => {
     save(users);
   }
 
-  /* ---- şifremi unuttum ----
-     Not: Gerçek sistemde sıfırlama bağlantısı e-posta ile gönderilir (arka uç gerekir).
-     Burada kimlik, hesapta kayıtlı telefonun son 4 hanesiyle doğrulanır. */
+  /* ---- şifremi unuttum: e-posta doğrulama kodu ---- */
+  const CK = "montiva_reset_codes";
+  const CODE_TTL = 10 * 60 * 1000;   // 10 dakika
+  const MAX_TRY = 3;
+
+  const loadCodes = () => { try { return JSON.parse(localStorage.getItem(CK)) || {}; } catch { return {}; } };
+  const saveCodes = (c) => localStorage.setItem(CK, JSON.stringify(c));
+
   function resetInfo(email) {
     const u = load().find(x => x.email === norm(email));
     if (!u) throw new Error("Bu e-posta ile kayıtlı hesap bulunamadı.");
-    const tel = (u.phone || "").replace(/\D/g, "");
-    // güvenlik: son 4 hane ipucu olarak DÖNDÜRÜLMEZ — doğrulamanın anlamı kalmazdı
-    return { name: u.name, hasPhone: tel.length >= 4 };
+    return { name: u.name, email: u.email };
   }
 
-  async function resetPassword(email, last4, newPw) {
-    const users = load();
-    const u = users.find(x => x.email === norm(email));
+  // 6 haneli kod üret ve sakla (kodun kendisi çağırana döner — e-posta ile gönderilir)
+  function issueResetCode(email) {
+    const e = norm(email);
+    const u = load().find(x => x.email === e);
     if (!u) throw new Error("Bu e-posta ile kayıtlı hesap bulunamadı.");
-    const tel = (u.phone || "").replace(/\D/g, "");
-    if (tel.length >= 4) {
-      if (String(last4).replace(/\D/g, "") !== tel.slice(-4))
-        throw new Error("Telefon numaranızın son 4 hanesi eşleşmiyor.");
+    const code = String(crypto.getRandomValues(new Uint32Array(1))[0] % 1000000).padStart(6, "0");
+    const codes = loadCodes();
+    codes[e] = { code, exp: Date.now() + CODE_TTL, tries: 0 };
+    saveCodes(codes);
+    return { code, name: u.name, expMin: CODE_TTL / 60000 };
+  }
+
+  function verifyResetCode(email, code) {
+    const e = norm(email);
+    const codes = loadCodes();
+    const rec = codes[e];
+    if (!rec) throw new Error("Kod bulunamadı. Lütfen yeni kod isteyin.");
+    if (Date.now() > rec.exp) { delete codes[e]; saveCodes(codes); throw new Error("Kodun süresi doldu. Yeni kod isteyin."); }
+    if (String(code).trim() !== rec.code) {
+      rec.tries++;
+      if (rec.tries >= MAX_TRY) { delete codes[e]; saveCodes(codes); throw new Error("Çok fazla hatalı deneme. Lütfen yeni kod isteyin."); }
+      saveCodes(codes);
+      throw new Error(`Kod hatalı. Kalan deneme: ${MAX_TRY - rec.tries}`);
     }
+    rec.verified = true; saveCodes(codes);
+    return true;
+  }
+
+  async function resetPassword(email, newPw) {
+    const e = norm(email);
+    const codes = loadCodes();
+    if (!codes[e] || !codes[e].verified) throw new Error("Önce e-postanıza gelen kodu doğrulayın.");
+    if (Date.now() > codes[e].exp) { delete codes[e]; saveCodes(codes); throw new Error("Doğrulama süresi doldu. Baştan başlayın."); }
     if (!newPw || newPw.length < 6) throw new Error("Yeni şifre en az 6 karakter olmalı.");
+    const users = load();
+    const u = users.find(x => x.email === e);
+    if (!u) throw new Error("Hesap bulunamadı.");
     u.salt = newSalt(); u.pass = await hash(newPw, u.salt);
     save(users);
-    localStorage.setItem(SK, u.id);   // sıfırlama sonrası otomatik giriş
+    delete codes[e]; saveCodes(codes);      // kod tek kullanımlık
+    localStorage.setItem(SK, u.id);          // sıfırlama sonrası otomatik giriş
     return publicUser(u);
   }
 
@@ -128,7 +159,8 @@ const AUTH = (() => {
   const campaignEmails = () => load().filter(u => u.campaigns).map(u => u.email);
 
   return { register, login, logout, current, updateProfile, changePassword,
-           resetInfo, resetPassword, myOrders, myReturns, allUsers, campaignEmails };
+           resetInfo, issueResetCode, verifyResetCode, resetPassword,
+           myOrders, myReturns, allUsers, campaignEmails };
 })();
 
 /* ---- oturum gerektiren sayfalar için yardımcı ---- */
