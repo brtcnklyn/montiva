@@ -86,6 +86,33 @@ const AUTH = (() => {
     save(users);
   }
 
+  /* ---- şifremi unuttum ----
+     Not: Gerçek sistemde sıfırlama bağlantısı e-posta ile gönderilir (arka uç gerekir).
+     Burada kimlik, hesapta kayıtlı telefonun son 4 hanesiyle doğrulanır. */
+  function resetInfo(email) {
+    const u = load().find(x => x.email === norm(email));
+    if (!u) throw new Error("Bu e-posta ile kayıtlı hesap bulunamadı.");
+    const tel = (u.phone || "").replace(/\D/g, "");
+    // güvenlik: son 4 hane ipucu olarak DÖNDÜRÜLMEZ — doğrulamanın anlamı kalmazdı
+    return { name: u.name, hasPhone: tel.length >= 4 };
+  }
+
+  async function resetPassword(email, last4, newPw) {
+    const users = load();
+    const u = users.find(x => x.email === norm(email));
+    if (!u) throw new Error("Bu e-posta ile kayıtlı hesap bulunamadı.");
+    const tel = (u.phone || "").replace(/\D/g, "");
+    if (tel.length >= 4) {
+      if (String(last4).replace(/\D/g, "") !== tel.slice(-4))
+        throw new Error("Telefon numaranızın son 4 hanesi eşleşmiyor.");
+    }
+    if (!newPw || newPw.length < 6) throw new Error("Yeni şifre en az 6 karakter olmalı.");
+    u.salt = newSalt(); u.pass = await hash(newPw, u.salt);
+    save(users);
+    localStorage.setItem(SK, u.id);   // sıfırlama sonrası otomatik giriş
+    return publicUser(u);
+  }
+
   // üyenin siparişleri (e-posta eşleşmesiyle — misafirken verdiği siparişler de gelir)
   function myOrders() {
     const u = current(); if (!u) return [];
@@ -100,7 +127,8 @@ const AUTH = (() => {
   const allUsers = () => load().map(publicUser);
   const campaignEmails = () => load().filter(u => u.campaigns).map(u => u.email);
 
-  return { register, login, logout, current, updateProfile, changePassword, myOrders, myReturns, allUsers, campaignEmails };
+  return { register, login, logout, current, updateProfile, changePassword,
+           resetInfo, resetPassword, myOrders, myReturns, allUsers, campaignEmails };
 })();
 
 /* ---- oturum gerektiren sayfalar için yardımcı ---- */

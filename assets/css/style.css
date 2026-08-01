@@ -445,6 +445,16 @@ table.specs td:first-child { color: var(--muted); width: 42%; font-weight: 600; 
 .auth-alt a { color: var(--primary); font-weight: 700; cursor: pointer; }
 .auth-guest { display: flex; align-items: center; gap: 14px; margin: 26px 0 16px; color: var(--muted); font-size: .8rem; }
 .auth-guest::before, .auth-guest::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.forgot-line { text-align: right; margin: -6px 0 14px; }
+.forgot-line a { font-size: .82rem; color: var(--primary); font-weight: 600; cursor: pointer; }
+.forgot-line a:hover { text-decoration: underline; }
+.pw-hint { display: block; font-size: .78rem; font-weight: 600; margin-top: 6px; }
+.pw-hint.ok { color: var(--green); }
+.pw-hint.err { color: var(--red); }
+.fg-found { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: var(--primary-050);
+  border: 1px solid var(--primary-100); border-radius: 10px; margin-bottom: 18px; color: var(--primary); }
+.fg-found b { display: block; font-size: .92rem; color: var(--ink); }
+.fg-found span { font-size: .8rem; color: var(--muted); word-break: break-all; }
 
 /* ---------- hesabım ---------- */
 .acct-layout { display: grid; grid-template-columns: 254px 1fr; gap: 30px; padding: 44px 0 90px; align-items: start; }

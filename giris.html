@@ -6,7 +6,7 @@
   <title>Giriş Yap / Üye Ol — NOVORA</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=5">
+  <link rel="stylesheet" href="assets/css/style.css?v=6">
 </head>
 <body>
 
@@ -23,17 +23,50 @@
       <form id="form-login" class="auth-form" novalidate>
         <div class="field"><label>E-posta</label><input id="l-mail" type="email" autocomplete="email" placeholder="ornek@mail.com"></div>
         <div class="field"><label>Şifre</label><input id="l-pass" type="password" autocomplete="current-password" placeholder="••••••"></div>
+        <p class="forgot-line"><a onclick="showTab('forgot')">Şifremi unuttum</a></p>
         <div class="lookup-msg" id="l-msg"></div>
         <button type="submit" class="btn btn-primary" style="width:100%">Giriş Yap</button>
         <p class="auth-alt">Hesabın yok mu? <a onclick="showTab('reg')">Hemen üye ol</a></p>
+      </form>
+
+      <!-- ŞİFREMİ UNUTTUM -->
+      <form id="form-forgot" class="auth-form" style="display:none" novalidate>
+        <p class="muted" style="font-size:.88rem;margin-bottom:18px">
+          Hesabınıza kayıtlı e-postayı girin. Kimliğinizi doğruladıktan sonra yeni şifrenizi belirleyebilirsiniz.
+        </p>
+
+        <!-- adım 1: e-posta -->
+        <div id="fg-step1">
+          <div class="field"><label>E-posta</label><input id="fg-mail" type="email" autocomplete="email" placeholder="ornek@mail.com"></div>
+          <div class="lookup-msg" id="fg-msg"></div>
+          <button type="button" class="btn btn-primary" style="width:100%" onclick="hesabiBul()">Devam Et</button>
+        </div>
+
+        <!-- adım 2: doğrulama + yeni şifre -->
+        <div id="fg-step2" style="display:none">
+          <div class="fg-found" id="fg-found"></div>
+          <div class="field" id="fg-tel-wrap">
+            <label>Telefonunuzun son 4 hanesi</label>
+            <input id="fg-last4" inputmode="numeric" maxlength="4" placeholder="••••">
+          </div>
+          <div class="field"><label>Yeni Şifre <span class="opt">(en az 6 karakter)</span></label><input id="fg-pass" type="password" autocomplete="new-password" placeholder="••••••"></div>
+          <div class="field"><label>Yeni Şifre (tekrar)</label><input id="fg-pass2" type="password" autocomplete="new-password" placeholder="••••••">
+            <span class="pw-hint" id="fg-hint"></span></div>
+          <div class="lookup-msg" id="fg-msg2"></div>
+          <button type="button" class="btn btn-primary" style="width:100%" onclick="sifreyiSifirla()">Şifremi Güncelle</button>
+        </div>
+
+        <p class="auth-alt"><a onclick="showTab('login')">← Giriş ekranına dön</a></p>
       </form>
 
       <!-- KAYIT -->
       <form id="form-reg" class="auth-form" style="display:none" novalidate>
         <div class="field"><label>Ad Soyad</label><input id="r-name" autocomplete="name" placeholder="Adınız Soyadınız"></div>
         <div class="field"><label>E-posta</label><input id="r-mail2" type="email" autocomplete="email" placeholder="ornek@mail.com"></div>
-        <div class="field"><label>Telefon <span class="opt">(isteğe bağlı)</span></label><input id="r-tel" type="tel" autocomplete="tel" placeholder="05xx xxx xx xx"></div>
+        <div class="field"><label>Telefon <span class="opt">(şifrenizi unutursanız doğrulama için kullanılır)</span></label><input id="r-tel" type="tel" autocomplete="tel" placeholder="05xx xxx xx xx"></div>
         <div class="field"><label>Şifre <span class="opt">(en az 6 karakter)</span></label><input id="r-pass" type="password" autocomplete="new-password" placeholder="••••••"></div>
+        <div class="field"><label>Şifre (tekrar)</label><input id="r-pass2" type="password" autocomplete="new-password" placeholder="••••••">
+          <span class="pw-hint" id="pw-hint"></span></div>
         <label class="check-line"><input type="checkbox" id="r-camp" checked> <span>Kampanya ve yeni ürün duyurularını e-posta ile almak istiyorum.</span></label>
         <label class="check-line"><input type="checkbox" id="r-kvkk2"> <span><a href="kvkk.html" target="_blank">KVKK & Gizlilik Politikası</a>'nı okudum, kabul ediyorum.</span></label>
         <div class="lookup-msg" id="r-msg2"></div>
@@ -49,12 +82,12 @@
   </div>
 </main>
 
-<script src="assets/js/icons.js?v=5"></script>
-<script src="assets/js/seed.js?v=5"></script>
-<script src="assets/js/db.js?v=5"></script>
-<script src="assets/js/auth.js?v=5"></script>
-<script src="assets/js/store.js?v=5"></script>
-<script src="assets/js/chat.js?v=5"></script>
+<script src="assets/js/icons.js?v=6"></script>
+<script src="assets/js/seed.js?v=6"></script>
+<script src="assets/js/db.js?v=6"></script>
+<script src="assets/js/auth.js?v=6"></script>
+<script src="assets/js/store.js?v=6"></script>
+<script src="assets/js/chat.js?v=6"></script>
 <script>
   renderChrome();
   const next = new URLSearchParams(location.search).get("next") || "hesabim.html";
@@ -63,11 +96,62 @@
   document.getElementById("guest-btn").innerHTML = "Üye olmadan alışverişe devam et " + icon("arrowRight", 16);
 
   function showTab(t) {
-    const login = t === "login";
-    document.getElementById("tab-login").classList.toggle("active", login);
-    document.getElementById("tab-reg").classList.toggle("active", !login);
-    document.getElementById("form-login").style.display = login ? "block" : "none";
-    document.getElementById("form-reg").style.display = login ? "none" : "block";
+    document.getElementById("tab-login").classList.toggle("active", t === "login" || t === "forgot");
+    document.getElementById("tab-reg").classList.toggle("active", t === "reg");
+    document.getElementById("form-login").style.display  = t === "login"  ? "block" : "none";
+    document.getElementById("form-reg").style.display    = t === "reg"    ? "block" : "none";
+    document.getElementById("form-forgot").style.display = t === "forgot" ? "block" : "none";
+    if (t === "forgot") {
+      document.getElementById("fg-step1").style.display = "block";
+      document.getElementById("fg-step2").style.display = "none";
+      document.getElementById("fg-msg").className = "lookup-msg";
+      document.getElementById("fg-msg2").className = "lookup-msg";
+    }
+  }
+
+  /* ---- şifre eşleşme göstergesi ---- */
+  function pwWatch(a, b, hintId) {
+    const f = () => {
+      const h = document.getElementById(hintId);
+      const p1 = document.getElementById(a).value, p2 = document.getElementById(b).value;
+      if (!p2) { h.textContent = ""; h.className = "pw-hint"; return; }
+      const ok = p1 === p2;
+      h.className = "pw-hint " + (ok ? "ok" : "err");
+      h.textContent = ok ? "✓ Şifreler eşleşiyor" : "✕ Şifreler eşleşmiyor";
+    };
+    document.getElementById(a).addEventListener("input", f);
+    document.getElementById(b).addEventListener("input", f);
+  }
+  pwWatch("r-pass", "r-pass2", "pw-hint");
+  pwWatch("fg-pass", "fg-pass2", "fg-hint");
+
+  /* ---- şifremi unuttum ---- */
+  let fgUser = null;
+  function hesabiBul() {
+    const mail = document.getElementById("fg-mail").value.trim();
+    try {
+      const info = AUTH.resetInfo(mail);
+      fgUser = { email: mail, ...info };
+      document.getElementById("fg-msg").className = "lookup-msg";
+      document.getElementById("fg-step1").style.display = "none";
+      document.getElementById("fg-step2").style.display = "block";
+      document.getElementById("fg-found").innerHTML =
+        `${icon("user",16)} <div><b>${info.name}</b><span>${mail}</span></div>`;
+      // telefon kayıtlı değilse doğrulama adımını gizle
+      document.getElementById("fg-tel-wrap").style.display = info.hasPhone ? "block" : "none";
+      if (info.hasPhone) document.getElementById("fg-last4").focus();
+      else document.getElementById("fg-pass").focus();
+    } catch (e) { say("fg-msg", "err", e.message); }
+  }
+
+  async function sifreyiSifirla() {
+    const p1 = document.getElementById("fg-pass").value, p2 = document.getElementById("fg-pass2").value;
+    if (p1 !== p2) return say("fg-msg2", "err", "Şifreler eşleşmiyor.");
+    try {
+      const u = await AUTH.resetPassword(fgUser.email, document.getElementById("fg-last4").value, p1);
+      say("fg-msg2", "ok", `Şifren güncellendi, hoş geldin ${u.name.split(" ")[0]}! Yönlendiriliyorsun...`);
+      setTimeout(() => location.href = next, 800);
+    } catch (e) { say("fg-msg2", "err", e.message); }
   }
   const say = (id, cls, txt) => {
     const el = document.getElementById(id);
@@ -86,6 +170,8 @@
 
   document.getElementById("form-reg").addEventListener("submit", async e => {
     e.preventDefault();
+    const p1 = document.getElementById("r-pass").value, p2 = document.getElementById("r-pass2").value;
+    if (p1 !== p2) return say("r-msg2", "err", "Şifreler eşleşmiyor. Lütfen aynı şifreyi iki kez girin.");
     if (!document.getElementById("r-kvkk2").checked) return say("r-msg2", "err", "Devam etmek için KVKK onayı gerekli.");
     try {
       const u = await AUTH.register({
