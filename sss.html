@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sıkça Sorulan Sorular — NOVORA</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=7">
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css?v=8">
+  <link rel="stylesheet" href="assets/css/editorial.css?v=8">
 </head>
-<body>
+<body class="ed">
 
 <main>
   <div class="page-hero">
@@ -20,14 +21,15 @@
   <div class="container prose" id="faq-body"></div>
 </main>
 
-<script src="assets/js/icons.js?v=7"></script>
-<script src="assets/js/seed.js?v=7"></script>
-<script src="assets/js/db.js?v=7"></script>
-<script src="assets/js/auth.js?v=7"></script>
-<script src="assets/js/store.js?v=7"></script>
-<script src="assets/js/chat.js?v=7"></script>
+<script src="assets/js/icons.js?v=8"></script>
+<script src="assets/js/seed.js?v=8"></script>
+<script src="assets/js/db.js?v=8"></script>
+<script src="assets/js/auth.js?v=8"></script>
+<script src="assets/js/store.js?v=8"></script>
+<script src="assets/js/chat.js?v=8"></script>
 <script>
   renderChrome("faq");
+  document.querySelector("header.site").classList.add("solid");
   document.getElementById("faq-body").innerHTML = CONTENT.faq.items.map(f =>
     `<details class="faq-item"><summary>${f.q}</summary><div class="a">${f.a}</div></details>`).join("");
 </script>

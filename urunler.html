@@ -5,56 +5,79 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ürünler — NOVORA Demonte Mobilya</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=7">
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css?v=8">
+  <link rel="stylesheet" href="assets/css/editorial.css?v=8">
 </head>
-<body>
+<body class="ed">
 
 <main>
-  <div class="page-hero">
+  <section class="ed-page-head">
     <div class="container">
+      <span class="ed-kicker" id="kicker">Koleksiyon</span>
       <h1 id="page-title">Tüm Ürünler</h1>
-      <p>Kahve köşesi ve mutfak düzenleyici koleksiyonumuz — hepsi demonte, hepsi ücretsiz kargolu.</p>
-      <div class="cat-chips" id="cat-chips"></div>
+      <p id="page-desc">Toz boyalı çelik gövde, demonte teslimat, ücretsiz kargo.
+        Her ürün 3D olarak incelenebilir, telefonla evinde denenebilir.</p>
+    </div>
+  </section>
+
+  <div class="ed-bar">
+    <div class="container inner">
+      <div class="ed-chips" id="cat-chips"></div>
+      <span class="ed-count" id="count-label"></span>
+      <select id="sort" onchange="renderList()">
+        <option value="default">Önerilen</option>
+        <option value="price-asc">Fiyat ↑</option>
+        <option value="price-desc">Fiyat ↓</option>
+        <option value="discount">İndirim</option>
+      </select>
     </div>
   </div>
 
-  <section class="block">
-    <div class="container">
-      <div class="section-head">
-        <div><span class="kicker" id="count-label"></span><h2>Koleksiyon</h2></div>
-        <div class="field" style="margin:0;min-width:210px">
-          <select id="sort" onchange="renderList()">
-            <option value="default">Önerilen Sıralama</option>
-            <option value="price-asc">Fiyat: Düşükten Yükseğe</option>
-            <option value="price-desc">Fiyat: Yüksekten Düşüğe</option>
-            <option value="discount">İndirim Oranı</option>
-          </select>
-        </div>
-      </div>
-      <div class="grid-products" id="list"></div>
-    </div>
-  </section>
+  <div class="container">
+    <div class="ed-grid" id="list"></div>
+  </div>
 </main>
 
-<script src="assets/js/icons.js?v=7"></script>
-<script src="assets/js/seed.js?v=7"></script>
-<script src="assets/js/db.js?v=7"></script>
-<script src="assets/js/auth.js?v=7"></script>
-<script src="assets/js/store.js?v=7"></script>
-<script src="assets/js/chat.js?v=7"></script>
+<script src="assets/js/icons.js?v=8"></script>
+<script src="assets/js/seed.js?v=8"></script>
+<script src="assets/js/db.js?v=8"></script>
+<script src="assets/js/auth.js?v=8"></script>
+<script src="assets/js/store.js?v=8"></script>
+<script src="assets/js/chat.js?v=8"></script>
 <script>
   renderChrome("products");
+  document.querySelector("header.site").classList.add("solid");
+
   const activeCat = new URLSearchParams(location.search).get("cat");
 
-  // kategori çipleri
+  /* kategori çipleri */
   const cats = [...new Set(PRODUCTS.map(p => p.category).filter(Boolean))];
   document.getElementById("cat-chips").innerHTML =
-    `<a class="cat-chip ${!activeCat ? "active" : ""}" href="urunler.html">Tümü</a>` +
-    cats.map(c => `<a class="cat-chip ${activeCat === c ? "active" : ""}" href="urunler.html?cat=${encodeURIComponent(c)}">${c}</a>`).join("");
+    `<a class="ed-chip ${!activeCat ? "active" : ""}" href="urunler.html">Tümü</a>` +
+    cats.map(c => `<a class="ed-chip ${activeCat === c ? "active" : ""}" href="urunler.html?cat=${encodeURIComponent(c)}">${c}</a>`).join("");
   if (activeCat) {
+    document.getElementById("kicker").textContent = "Kategori";
     document.getElementById("page-title").textContent = activeCat;
-    document.querySelector(".page-hero p").textContent = `${activeCat} kategorisindeki ürünler — hepsi demonte, ücretsiz kargolu.`;
+    document.getElementById("page-desc").textContent =
+      `${activeCat} koleksiyonu — demonte teslim, ücretsiz kargo, 2 yıl garanti.`;
+  }
+
+  /* editorial ürün kartı */
+  function cardHTML(p) {
+    const ind = p.listPrice > p.price ? Math.round((1 - p.price / p.listPrice) * 100) : 0;
+    const tones = PRODUCTS.filter(x => x.name === p.name).slice(0, 6);
+    const rozet = ind ? `<span class="tag sale">%${ind}</span>`
+                      : (p.badge ? `<span class="tag">${p.badge}</span>` : "");
+    return `<a class="ed-card rv" href="urun.html?id=${p.id}">
+      <div class="m">${rozet}<img src="${p.images[0]}" alt="${p.name} — ${p.color}" loading="lazy"></div>
+      <div class="t">
+        <b>${p.name}</b>
+        <span>${ind ? `<s>${fmtPrice(p.listPrice)}</s>` : ""}${fmtPrice(p.price)}</span>
+      </div>
+      <div class="c">${p.color} · ${p.dims || ""}</div>
+      <div class="sw">${tones.map(t => `<i style="background:${t.hex || "#ccc"}" title="${t.color}"></i>`).join("")}</div>
+    </a>`;
   }
 
   function renderList() {
@@ -63,9 +86,27 @@
     if (mode === "price-asc") items.sort((a, b) => a.price - b.price);
     if (mode === "price-desc") items.sort((a, b) => b.price - a.price);
     if (mode === "discount") items.sort((a, b) => (1 - b.price / b.listPrice) - (1 - a.price / a.listPrice));
-    document.getElementById("list").innerHTML = items.map(productCardHTML).join("");
-    document.getElementById("count-label").textContent = items.length + " ürün listeleniyor";
+    const list = document.getElementById("list");
+    list.innerHTML = items.length ? items.map(cardHTML).join("")
+      : `<div class="ed-empty" style="grid-column:1/-1">Bu kategoride ürün bulunamadı.</div>`;
+    document.getElementById("count-label").textContent = items.length + " ürün";
+    bekleyen = [...list.querySelectorAll(".rv")];
+    kontrolEt();
   }
+
+  /* kademeli belirme */
+  let bekleyen = [];
+  function kontrolEt() {
+    if (!bekleyen.length) return;
+    bekleyen = bekleyen.filter(el => {
+      if (el.getBoundingClientRect().top < innerHeight * .95) { el.classList.add("in"); return false; }
+      return true;
+    });
+  }
+  let ticking = false;
+  addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(() => { kontrolEt(); ticking = false; }); } }, { passive: true });
+  addEventListener("resize", kontrolEt, { passive: true });
+
   renderList();
 </script>
 </body>

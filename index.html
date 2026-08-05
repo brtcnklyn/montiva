@@ -4,188 +4,315 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NOVORA — Simple to Assemble. Beautiful to Live.</title>
-  <meta name="description" content="Demonte kahve köşesi ve mutfak mobilyaları. 3D önizleme, AR ile evinde gör, kolay montaj, PDF kılavuz, ücretsiz kargo.">
+  <meta name="description" content="Renkli demonte metal mobilya. 3D önizleme, AR ile evinde gör, kolay montaj, ücretsiz kargo.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=7">
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css?v=8">
+  <link rel="stylesheet" href="assets/css/editorial.css?v=8">
   <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 </head>
-<body>
+<body class="ed">
+
+<div class="progress" id="progress"></div>
 
 <main>
-  <!-- HERO -->
-  <div class="hero">
-    <div class="hero-bg"><img id="hero-bg-img" src="assets/img/urun/lumen-koleksiyon.webp" alt="NOVORA koleksiyonu" fetchpriority="high"></div>
-    <div class="container">
-      <div class="hero-copy">
-        <span class="eyebrow" id="hero-eyebrow"></span>
-        <h1><span data-content="home.heroTitle1"></span> <span data-content="home.heroHighlight"></span><span id="hero-t2"></span></h1>
-        <p class="lead" data-content="home.heroLead"></p>
-        <div class="actions" id="hero-actions"></div>
-        <div class="hero-stats" id="hero-stats"></div>
-      </div>
-      <div class="hero-promo">
-        <span class="hp-ribbon">Fırsat</span>
-        <div class="hp-title">Mevcut indirime <b>Ek Fırsat!</b></div>
-        <div class="hp-tier"><span>7.500 TL ve üzeri</span><b>ek %10</b></div>
-        <div class="hp-tier"><span>12.500 TL ve üzeri</span><b>ek %20</b></div>
-        <a href="urunler.html" class="btn btn-primary" id="hp-btn">İndirimi Yakala</a>
-        <div class="hp-note">Fırsatları kaçırma</div>
+  <!-- ══════════ 1. SAHNE — tam ekran video ══════════ -->
+  <section class="scene" id="scene1">
+    <video id="heroVid" autoplay muted loop playsinline preload="auto" poster="assets/img/urun/sahne-koleksiyon.webp">
+      <source src="assets/video/hero.mp4" type="video/mp4">
+    </video>
+    <div class="container scene-copy">
+      <div id="heroCopy">
+        <span class="scene-eyebrow line-mask"><span>Renkli Metal Mobilya</span></span>
+        <h1 class="scene-title">
+          <span class="line-mask"><span>Kur.</span></span>
+          <span class="line-mask"><span>Yaşa.</span></span>
+          <span class="line-mask"><span><em>Renklendir.</em></span></span>
+        </h1>
+        <p class="scene-sub">Toz boyalı çelik gövde, 24 pastel ton, tek kolide demonte teslim.
+          Ortalama 30 dakikada kurulur — ömür boyu kalır.</p>
+        <div class="scene-actions">
+          <a href="urunler.html" class="ed-btn ed-btn-light">Koleksiyonu Gör</a>
+          <a href="#ar" class="ed-btn ed-btn-outline">Evinde Dene</a>
+        </div>
       </div>
     </div>
-  </div>
+    <div class="scroll-cue"><span>Kaydır</span><i></i></div>
+  </section>
 
-  <!-- PASTEL PALET ŞERİDİ -->
-  <div class="palette-strip" id="palette-strip"></div>
+  <!-- ══════════ 2. RAKAMLAR ══════════ -->
+  <section class="figures" id="figures">
+    <div class="figure rv"><b data-count="24">0</b><span>Renk Seçeneği</span></div>
+    <div class="figure rv rv-d1"><b data-count="30" data-suffix=" dk">0</b><span>Ortalama Montaj</span></div>
+    <div class="figure rv rv-d2"><b data-count="2" data-suffix=" yıl">0</b><span>Garanti</span></div>
+    <div class="figure rv rv-d3"><b data-count="100" data-prefix="%">0</b><span>Yerli Üretim</span></div>
+  </section>
 
-  <!-- GÜVEN ŞERİDİ -->
-  <div class="trust-strip"><div class="trust-track" id="trust-track"></div></div>
-
-  <!-- ÜRÜNLER -->
-  <section class="block reveal">
+  <!-- ══════════ 3. KOLEKSİYON — yatay kayan ══════════ -->
+  <section class="ed-sec">
     <div class="container">
-      <div class="section-head">
-        <div>
-          <span class="kicker">Koleksiyon</span>
-          <h2 data-content="home.productsHeading"></h2>
-          <p data-content="home.productsSub"></p>
+      <div class="ed-head rv" style="display:flex;justify-content:space-between;align-items:flex-end;max-width:none;gap:30px;flex-wrap:wrap">
+        <div style="max-width:640px">
+          <span class="ed-kicker">Koleksiyon</span>
+          <h2 class="ed-h2">Her mekâna bir <em>ton</em></h2>
+          <p class="ed-lead">Adaçayı yeşilinden lavantaya, tereyağı sarısından terrakotaya —
+            aynı gövde, farklı karakter.</p>
         </div>
-        <a href="urunler.html" class="btn btn-outline" id="all-btn">Tümünü Gör</a>
+        <div class="rail-nav">
+          <button id="railPrev" aria-label="Önceki"></button>
+          <button id="railNext" aria-label="Sonraki"></button>
+        </div>
       </div>
-      <div class="grid-products" id="home-products"></div>
+      <div class="rail-wrap rv rv-d1">
+        <div class="rail" id="rail"></div>
+      </div>
+      <div style="margin-top:26px"><a href="urunler.html" class="ed-btn ed-btn-ghost" id="allBtn">Tüm Ürünler</a></div>
     </div>
   </section>
 
-  <!-- AR VİTRİN -->
-  <section class="block ar-spot reveal" id="ar">
+  <!-- ══════════ 4. SABİTLENEN ANLATIM ══════════ -->
+  <section class="pin-sec">
+    <div class="pin-grid">
+      <div class="pin-media">
+        <video autoplay muted loop playsinline preload="none" poster="assets/img/urun/lumen-duvar.webp">
+          <source src="assets/video/detay.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="pin-steps">
+        <article class="pin-step">
+          <span class="n">01 — SEÇ</span>
+          <h3>Rengini seç,<br>3D'de incele</h3>
+          <p>Her ürünü 360° döndür, dilediğin tonda gör. Telefonunun kamerasıyla
+            gerçek boyutunda odana yerleştir — almadan önce emin ol.</p>
+        </article>
+        <article class="pin-step">
+          <span class="n">02 — GELSİN</span>
+          <h3>Tek kolide,<br>demonte</h3>
+          <p>Güçlendirilmiş ambalajda, parçalar halinde kapına gelir.
+            Kargo hasarı en aza iner, tasarruf doğrudan fiyata yansır.</p>
+        </article>
+        <article class="pin-step">
+          <span class="n">03 — KUR</span>
+          <h3>30 dakika,<br>tek alyan</h3>
+          <p>Gereken tek alet kutunun içinde. Adım adım PDF kılavuz,
+            takıldığın yerde 7/24 yapay zekâ desteği.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ 5. RENK BANDI — video ══════════ -->
+  <section class="strip" id="colorStrip">
+    <video id="colorVid" autoplay muted loop playsinline preload="none" poster="assets/img/urun/mesa-renkler.webp">
+      <source src="assets/video/renkler.mp4" type="video/mp4">
+    </video>
+    <div class="container strip-copy">
+      <div class="rv">
+        <span class="ed-kicker">Palet</span>
+        <h2 class="ed-h2">Gri olmak<br>zorunda değil</h2>
+        <p class="ed-lead">Elektrostatik toz boya ile kaplanan gövdeler solmaz, çizilmez.
+          Aynı üründe altı farklı karakter.</p>
+        <div class="dots" id="paletteDots"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ 6. İKİLİ GÖRSEL ══════════ -->
+  <section class="ed-sec">
     <div class="container">
-      <div class="wrap">
-        <model-viewer id="ar-spot-mv"
-          alt="AR ile evinde gör" camera-controls auto-rotate auto-rotate-delay="0"
-          rotation-per-second="18deg" touch-action="pan-y" shadow-intensity="1.1" exposure="1.1"
-          camera-orbit="30deg 75deg auto" ar ar-modes="webxr scene-viewer quick-look" ar-scale="fixed"
+      <div class="duo">
+        <figure class="duo-cell rv">
+          <img src="assets/img/urun/aurelio-ana.webp" alt="AURELIO Bar Dolabı" data-par="0.12">
+          <figcaption><b>AURELIO</b><span>Bar Dolabı · 6 renk</span></figcaption>
+        </figure>
+        <figure class="duo-cell rv rv-d2" style="margin-top:clamp(0px,6vw,80px)">
+          <img src="assets/img/urun/lumen-katalog.webp" alt="LUMEN Kemerli Kitaplık" data-par="0.18">
+          <figcaption><b>LUMEN</b><span>Kemerli Kitaplık · 5 renk</span></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ 7. AR ══════════ -->
+  <section class="ed-sec ar-ed" id="ar">
+    <div class="container wrap2">
+      <div class="rv">
+        <model-viewer id="arMv" alt="AR ile evinde gör" camera-controls auto-rotate auto-rotate-delay="0"
+          rotation-per-second="16deg" touch-action="pan-y" shadow-intensity="1" exposure="1.05"
+          camera-orbit="28deg 76deg auto" ar ar-modes="webxr scene-viewer quick-look" ar-scale="fixed"
           interaction-prompt="none" loading="lazy">
-          <button slot="ar-button" class="btn btn-mint ar-btn" id="ar-spot-btn">Evimde Gör (AR)</button>
+          <button slot="ar-button" class="ed-btn ed-btn-dark" style="position:absolute;right:18px;bottom:18px" id="arBtn">Evimde Gör</button>
         </model-viewer>
-        <div>
-          <span class="kicker">Yeni Nesil Alışveriş</span>
-          <h2>Almadan önce <span style="background:linear-gradient(100deg,var(--primary),var(--mint-600));-webkit-background-clip:text;background-clip:text;color:transparent">evinde gör</span></h2>
-          <p class="muted">Her ürünü 360° döndürüp inceleyebilir, telefonunun kamerasıyla gerçek boyutunda odana yerleştirebilirsin. "Acaba sığar mı, rengi uyar mı?" derdi bitti.</p>
-          <div class="feat-list" id="ar-feats"></div>
-          <a href="urunler.html" class="btn btn-primary" id="ar-cta">Ürünlerde Dene</a>
-        </div>
+      </div>
+      <div class="rv rv-d1">
+        <span class="ed-kicker">Artırılmış Gerçeklik</span>
+        <h2 class="ed-h2">Almadan önce<br><em>evinde gör</em></h2>
+        <ul class="ar-list">
+          <li><span class="n">01</span><div><b>Masaüstünde 3D</b><p>Fareyle her açıdan döndür, detayları yakınlaştır.</p></div></li>
+          <li><span class="n">02</span><div><b>Telefonda AR</b><p>Kamerayı aç, ürünü gerçek ölçüsünde odana yerleştir.</p></div></li>
+          <li><span class="n">03</span><div><b>Santimi santimine</b><p>Sığar mı, rengi uyar mı — tereddüt kalmaz.</p></div></li>
+        </ul>
+        <a href="urunler.html" class="ed-btn ed-btn-dark" id="arCta">Ürünlerde Dene</a>
       </div>
     </div>
   </section>
 
-  <!-- ÖZELLİKLER -->
-  <section class="block reveal" style="padding-top:0">
-    <div class="container"><div class="features" id="home-features"></div></div>
-  </section>
-
-  <!-- NASIL ÇALIŞIR -->
-  <section class="block reveal" id="nasil" style="background:#fff">
+  <!-- ══════════ 8. MANİFESTO ══════════ -->
+  <section class="manifesto">
     <div class="container">
-      <div class="section-head"><div><span class="kicker">Süreç</span><h2>Nasıl Çalışır?</h2><p>Biz üretiyoruz, siz kolayca kuruyorsunuz. Böylece hem kargo hem fiyat avantajı sizde kalıyor.</p></div></div>
-      <div class="steps" id="home-steps"></div>
+      <p class="rv">“Kurması kolay,<br>yaşaması güzel.”</p>
+      <div class="sig rv rv-d1">NOVORA · Simple to Assemble. Beautiful to Live.</div>
     </div>
   </section>
 
-  <!-- YORUMLAR -->
-  <section class="block reveal">
-    <div class="container">
-      <div class="section-head"><div><span class="kicker">Müşteri Deneyimi</span><h2>Kullananlar Ne Diyor?</h2><p>Binlerce mutlu evin tercihi — birkaç yorum:</p></div></div>
-      <div class="reviews" id="reviews"></div>
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section class="block reveal">
-    <div class="container">
-      <div class="cta-soft">
-        <div>
-          <h2 data-content="home.ctaTitle"></h2>
-          <p data-content="home.ctaText"></p>
-        </div>
-        <button class="btn btn-primary" id="cta-chat" onclick="document.getElementById('chat-fab').click()"></button>
+  <!-- ══════════ 9. KAPANIŞ ══════════ -->
+  <section class="closing">
+    <video autoplay muted loop playsinline preload="none" poster="assets/img/urun/mesa-koleksiyon-2.webp">
+      <source src="assets/video/detay.mp4" type="video/mp4">
+    </video>
+    <div class="container inner rv">
+      <h2>Evini yeniden yaz</h2>
+      <p>24 renk, 11 ürün ailesi, tek kolide demonte teslim. Ücretsiz kargo, 2 yıl garanti.</p>
+      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+        <a href="urunler.html" class="ed-btn ed-btn-light">Koleksiyonu Keşfet</a>
+        <a href="hakkimizda.html" class="ed-btn ed-btn-outline">Hikâyemiz</a>
       </div>
     </div>
   </section>
 </main>
 
-<script src="assets/js/icons.js?v=7"></script>
-<script src="assets/js/seed.js?v=7"></script>
-<script src="assets/js/db.js?v=7"></script>
-<script src="assets/js/auth.js?v=7"></script>
-<script src="assets/js/store.js?v=7"></script>
-<script src="assets/js/chat.js?v=7"></script>
+<script src="assets/js/icons.js?v=8"></script>
+<script src="assets/js/seed.js?v=8"></script>
+<script src="assets/js/db.js?v=8"></script>
+<script src="assets/js/auth.js?v=8"></script>
+<script src="assets/js/store.js?v=8"></script>
+<script src="assets/js/chat.js?v=8"></script>
 <script>
   renderChrome("home");
-  const H = CONTENT.home;
+  document.querySelector("header.site").classList.add("on-dark");
 
-  // hero arka plan görseli — admin'den seçilebilir
-  // yalnızca admin farklı bir görsel seçtiyse değiştir (gereksiz yeniden yükleme / titreme olmasın)
-  (() => {
-    const el = document.getElementById("hero-bg-img");
-    if (SITE.heroImage && !el.getAttribute("src").endsWith(SITE.heroImage)) el.src = SITE.heroImage;
-  })();
+  /* ---------- ikonlar ---------- */
+  document.getElementById("railPrev").innerHTML = icon("chevron", 18);
+  document.getElementById("railNext").innerHTML = icon("chevron", 18);
+  document.getElementById("railPrev").style.transform = "rotate(90deg)";
+  document.getElementById("railNext").style.transform = "rotate(-90deg)";
+  document.getElementById("allBtn").innerHTML = `Tüm Ürünler ${icon("arrowRight", 16)}`;
+  document.getElementById("arCta").innerHTML = `Ürünlerde Dene ${icon("arrowRight", 16)}`;
+  document.getElementById("arBtn").innerHTML = `${icon("mobile", 16)} Evimde Gör`;
 
-  // ana sayfa "Evinde Gör" 3D modeli — admin'den seçilen ürün
-  const arProd = getProduct(SITE.arSpotProduct) || PRODUCTS[0];
-  const arMv = document.getElementById("ar-spot-mv");
-  if (arMv && arProd) { arMv.setAttribute("src", arProd.model); if (arProd.usdzModel) arMv.setAttribute("ios-src", arProd.usdzModel); }
+  /* ---------- koleksiyon rayı: her aileden bir temsilci ---------- */
+  const seen = new Set();
+  const fam = PRODUCTS.filter(p => { if (seen.has(p.name)) return false; seen.add(p.name); return true; });
+  document.getElementById("rail").innerHTML = fam.map(p => {
+    const tones = PRODUCTS.filter(x => x.name === p.name).slice(0, 6);
+    return `<a class="rail-item" href="urun.html?id=${p.id}">
+      <div class="rail-media"><img src="${p.images[0]}" alt="${p.name}" loading="lazy"></div>
+      <div class="rail-meta"><b>${p.name.split(" ")[0]}</b><span>${fmtPrice(p.price)}</span></div>
+      <div class="rail-swatches">${tones.map(t => `<i style="background:${t.hex || "#ccc"}"></i>`).join("")}</div>
+    </a>`;
+  }).join("");
 
-  document.getElementById("hero-eyebrow").innerHTML = icon("sparkle", 15) + " " + H.heroEyebrow;
-  document.getElementById("hero-t2").innerHTML = H.heroTitle2 ? ",<br>" + H.heroTitle2 : "";
-  document.getElementById("hero-actions").innerHTML =
-    `<a href="urunler.html" class="btn btn-primary">${H.cta1} ${icon("arrowRight", 18)}</a>
-     <a href="#ar" class="btn btn-ghost">${icon("scan", 18)} Almadan Önce Evinde Gör</a>`;
-  document.getElementById("hero-stats").innerHTML = H.stats.map(s => `<div><b>${s.n}</b><span>${s.l}</span></div>`).join("");
-  document.getElementById("all-btn").innerHTML = `Tümünü Gör ${icon("arrowRight", 17)}`;
-  document.getElementById("ar-cta").innerHTML = `Ürünlerde Dene ${icon("arrowRight", 18)}`;
-  document.getElementById("ar-spot-btn").innerHTML = `${icon("mobile", 18)} Evimde Gör (AR)`;
-  document.getElementById("cta-chat").innerHTML = `${icon("bot", 18)} ${H.ctaButton}`;
-  document.getElementById("hp-btn").innerHTML = `İndirimi Yakala ${icon("arrowRight", 17)}`;
-  document.getElementById("palette-strip").innerHTML =
-    ["#94A98B", "#A8D5BA", "#8FB4D9", "#E5C46B", "#E0937A", "#B9A5DC"]
+  const rail = document.getElementById("rail");
+  const step = () => rail.querySelector(".rail-item").offsetWidth + 26;
+  document.getElementById("railPrev").onclick = () => rail.scrollBy({ left: -step(), behavior: "smooth" });
+  document.getElementById("railNext").onclick = () => rail.scrollBy({ left: step(), behavior: "smooth" });
+
+  /* ---------- palet noktaları ---------- */
+  document.getElementById("paletteDots").innerHTML =
+    ["#94A98B","#D98B6B","#8FB4D9","#E0B84A","#B9A5DC","#E8B8B0"]
       .map(c => `<i style="background:${c}"></i>`).join("");
 
-  // her ürün ailesinden bir temsilci göster
-  const seenFam = new Set();
-  const featured = PRODUCTS.filter(p => { if (seenFam.has(p.name)) return false; seenFam.add(p.name); return true; }).slice(0, 8);
-  document.getElementById("home-products").innerHTML = featured.map(productCardHTML).join("");
-  document.getElementById("home-features").innerHTML = H.features.map(f =>
-    `<div class="feature"><div class="ic">${iconOrRaw(f.i, 22)}</div><div><b>${f.t}</b><span>${f.d}</span></div></div>`).join("");
-  document.getElementById("home-steps").innerHTML = H.steps.map(s => `<div class="step"><b>${s.t}</b><span>${s.d}</span></div>`).join("");
+  /* ---------- AR modeli ---------- */
+  const arProd = getProduct(SITE.arSpotProduct) || PRODUCTS[0];
+  const mv = document.getElementById("arMv");
+  if (arProd) { mv.src = arProd.model; if (arProd.usdzModel) mv.setAttribute("ios-src", arProd.usdzModel); }
 
-  document.getElementById("ar-feats").innerHTML = [
-    { i: "cursor", b: "Masaüstünde 3D", t: "fareyle her açıdan döndür, yakınlaştır." },
-    { i: "mobile", b: "Telefonda AR", t: "kamerayı aç, ürünü gerçek ölçüsünde evine koy." },
-    { i: "ruler", b: "Gerçek boyut", t: "santimi santimine, olduğu gibi görürsün." }
-  ].map(f => `<div><span class="ic">${icon(f.i, 18)}</span><div><b>${f.b}</b> — ${f.t}</div></div>`).join("");
+  /* ---------- görünürlükte belirme (scroll tabanlı, IO'ya bağımlı değil) ---------- */
+  let bekleyen = [...document.querySelectorAll(".rv")];
+  function kontrolEt() {
+    if (!bekleyen.length) return;
+    // eşiği geçen her şey açılır — hızlı kaydırmada bölüm gizli kalmasın
+    bekleyen = bekleyen.filter(el => {
+      if (el.getBoundingClientRect().top < innerHeight * .92) { el.classList.add("in"); return false; }
+      return true;
+    });
+  }
 
-  // güven şeridi
-  const trust = [
-    { i: "truck", t: "Ücretsiz Kargo" }, { i: "wrench", t: "Alet Kutuda" },
-    { i: "file", t: "PDF Montaj Kılavuzu" }, { i: "scan", t: "3D & AR Önizleme" },
-    { i: "shield", t: "2 Yıl Garanti" }, { i: "refresh", t: "Yedek Parça Desteği" },
-    { i: "pin", t: "%100 Yerli Üretim" }, { i: "bot", t: "7/24 AI Destek" }
-  ];
-  document.getElementById("trust-track").innerHTML = [...trust, ...trust]
-    .map(t => `<span>${icon(t.i, 17)} ${t.t}</span>`).join("");
+  // hero başlığı hemen açılsın
+  setTimeout(() => document.getElementById("heroCopy").classList.add("in"), 60);
 
-  // müşteri yorumları
-  const homeReviews = [
-    { t: "Kurulumu gerçekten 25 dakika sürdü, PDF kılavuz çok net. Mutfağımdaki kahve köşem harika oldu.", n: "Elif K.", c: "İstanbul", r: 5 },
-    { t: "Sipariş vermeden AR ile salona koyup baktım, tam istediğim gibi durdu. Bu özellik çok işime yaradı.", n: "Burak T.", c: "Ankara", r: 5 },
-    { t: "Kargoda bir raf çizilmişti, fotoğraf attım ertesi gün yenisi geldi. İlgi için teşekkürler.", n: "Merve A.", c: "İzmir", r: 5 }
-  ];
-  document.getElementById("reviews").innerHTML = homeReviews.map(r => `
-    <div class="review"><div class="stars">${stars(r.r, 15)}</div><p>“${r.t}”</p>
-      <div class="who"><span class="av">${r.n[0]}</span><div><b>${r.n}</b><span>${r.c} • Doğrulanmış Alıcı</span></div></div></div>`).join("");
+  /* ---------- sayaç ---------- */
+  let sayaclar = [...document.querySelectorAll("[data-count]")];
+  function sayacKontrol() {
+    if (!sayaclar.length) return;
+    sayaclar = sayaclar.filter(el => {
+      if (el.getBoundingClientRect().top > innerHeight * .85) return true;
+      const hedef = +el.dataset.count, pre = el.dataset.prefix || "", suf = el.dataset.suffix || "";
+      const t0 = performance.now(), sure = 1400;
+      const tick = now => {
+        const k = Math.min(1, (now - t0) / sure);
+        el.textContent = pre + Math.round(hedef * (1 - Math.pow(1 - k, 3))) + suf;
+        if (k < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+      setTimeout(() => { el.textContent = pre + hedef + suf; }, sure + 200);  // güvence
+      return false;
+    });
+  }
 
-  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: .12 });
-  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+  /* ---------- scroll: parallax + header + ilerleme ---------- */
+  const header = document.querySelector("header.site");
+  const scene1 = document.getElementById("scene1");
+  const heroVid = document.getElementById("heroVid");
+  const colorVid = document.getElementById("colorVid");
+  const progress = document.getElementById("progress");
+  const pars = [...document.querySelectorAll("[data-par]")];
+  const mega = document.getElementById("mega");
+  let ticking = false;
+
+  function onScroll() {
+    const y = window.scrollY;
+
+    // ilerleme çizgisi
+    const max = document.body.scrollHeight - innerHeight;
+    progress.style.width = (max > 0 ? (y / max) * 100 : 0) + "%";
+
+    // header: koyu sahne üzerindeyken beyaz yazı, sonra katı zemin.
+    // mega menü açıkken zemin beyaz olduğu için header da katıya geçmeli.
+    const koyuSonu = scene1.offsetHeight - 90;
+    const koyuKal = y <= koyuSonu && !(mega && mega.classList.contains("open"));
+    header.classList.toggle("solid", !koyuKal);
+    header.classList.toggle("on-dark", koyuKal);
+
+    // hero videoda yavaş parallax
+    if (y < innerHeight * 1.2) {
+      heroVid.style.transform = `scale(1.08) translateY(${y * 0.16}px)`;
+      document.getElementById("heroCopy").style.opacity = Math.max(0, 1 - y / (innerHeight * .7));
+    }
+
+    // görsellerde parallax
+    pars.forEach(el => {
+      const r = el.parentElement.getBoundingClientRect();
+      if (r.bottom < -200 || r.top > innerHeight + 200) return;
+      const orta = r.top + r.height / 2 - innerHeight / 2;
+      el.style.transform = `translateY(${orta * -(+el.dataset.par)}px) scale(1.12)`;
+    });
+
+    kontrolEt();
+    sayacKontrol();
+    ticking = false;
+  }
+  addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+  addEventListener("resize", onScroll, { passive: true });
+  if (mega) new MutationObserver(onScroll).observe(mega, { attributes: true, attributeFilter: ["class"] });
+  onScroll();
+
+  /* ---------- videolar: yalnızca görünürken oynasın (performans) ---------- */
+  const vio = new IntersectionObserver(es => es.forEach(e => {
+    const v = e.target;
+    if (e.isIntersecting) { v.play().catch(() => {}); } else { v.pause(); }
+  }), { threshold: .15 });
+  document.querySelectorAll("video").forEach(v => vio.observe(v));
 </script>
 </body>
 </html>
