@@ -271,6 +271,25 @@ body.ed footer.site { background: var(--ink); }
   .ed-page-head { padding: 108px 0 32px; }
 }
 
+/* ============ ürün yorumu yazma ============ */
+.rev-gate { display: flex; align-items: center; gap: 16px; padding: 22px 24px; border: 1px solid var(--hair);
+  background: #fff; margin-top: 26px; flex-wrap: wrap; }
+.rev-gate > div { flex: 1; min-width: 200px; }
+.rev-gate b { display: block; font-size: .98rem; font-weight: 500; }
+.rev-gate span { color: var(--dim); font-size: .86rem; font-weight: 300; }
+.rev-gate .ic-svg { flex: none; color: var(--dim); }
+
+.rev-form { border: 1px solid var(--hair); background: #fff; padding: 26px; margin-top: 26px; }
+.rev-form > b { display: block; font-size: 1.05rem; font-weight: 500; margin-bottom: 14px; }
+.star-pick { display: flex; gap: 4px; margin-bottom: 14px; }
+.star-pick button { background: none; border: 0; padding: 2px; color: #D8D5CC; transition: transform .15s, color .15s; line-height: 0; }
+.star-pick button:hover { transform: scale(1.15); }
+.star-pick button.on { color: #F5B027; }
+.rev-form textarea { width: 100%; border: 1px solid var(--hair); padding: 13px 15px; font-family: inherit;
+  font-size: .94rem; resize: vertical; background: var(--paper); }
+.rev-form textarea:focus { outline: none; border-color: var(--ink); }
+.rev-actions { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-top: 14px; flex-wrap: wrap; }
+
 /* --- ilerleme çizgisi --- */
 .progress { position: fixed; top: 0; left: 0; height: 2px; background: var(--ink); z-index: 1000; width: 0; }
 

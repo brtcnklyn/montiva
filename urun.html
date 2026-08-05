@@ -156,12 +156,73 @@
         ${revs.map(r => `<div class="review"><div class="stars">${stars(r.r, 15)}</div><p>“${r.t}”</p>
           <div class="who"><span class="av">${r.n[0]}</span><div><b>${r.n}</b><span>${r.c} • Doğrulanmış Alıcı • ${r.d}</span></div></div></div>`).join("")}
       </div>
+      <div id="rev-form-slot"></div>
     </section>
 
     <section class="block" style="padding-top:0">
       <div class="section-head"><div><span class="kicker">Benzer</span><h2>Bunlar da İlgini Çekebilir</h2></div></div>
       <div class="grid-products">${PRODUCTS.filter(x => x.id !== p.id && x.name !== p.name).slice(0, 4).map(productCardHTML).join("")}</div>
     </section>`;
+
+  /* ---------- yorum yazma: üye + satın almış olma şartı ---------- */
+  (function reviewForm() {
+    const slot = document.getElementById("rev-form-slot");
+    const me = (typeof AUTH !== "undefined") ? AUTH.current() : null;
+
+    if (!me) {
+      slot.innerHTML = `<div class="rev-gate">${icon("user", 18)}
+        <div><b>Yorum yazmak için giriş yapın</b><span>Yorumlar yalnızca ürünü satın alan üyelerimize açıktır.</span></div>
+        <a class="btn btn-ghost" href="giris.html">Giriş Yap</a></div>`;
+      return;
+    }
+
+    // bu ürün ailesinden herhangi bir renk satın alınmış mı?
+    const bought = AUTH.myOrders().some(o =>
+      (o.items || []).some(it => it.id === p.id || it.name === p.name));
+    if (!bought) {
+      slot.innerHTML = `<div class="rev-gate">${icon("lock", 18)}
+        <div><b>Yorumlar doğrulanmış alıcılara açık</b><span>Bu ürünü satın aldıktan sonra deneyiminizi paylaşabilirsiniz.</span></div></div>`;
+      return;
+    }
+
+    const mine = revs.find(r => r.e === me.email);
+    let rating = mine ? mine.r : 0;
+
+    slot.innerHTML = `
+      <div class="rev-form">
+        <b>${mine ? "Yorumunu güncelle" : "Deneyimini paylaş"}</b>
+        <div class="star-pick" id="star-pick">
+          ${[1,2,3,4,5].map(n => `<button type="button" data-n="${n}" aria-label="${n} yıldız">${starIcon(22)}</button>`).join("")}
+        </div>
+        <textarea id="rev-text" rows="4" maxlength="600" placeholder="Ürün nasıldı? Montaj, kalite, renk...">${mine ? mine.t : ""}</textarea>
+        <div class="rev-actions">
+          <span class="muted" style="font-size:.8rem">${me.name} olarak, doğrulanmış alıcı etiketiyle yayınlanır.</span>
+          <button class="btn btn-primary" id="rev-send">${mine ? "Güncelle" : "Yorumu Gönder"}</button>
+        </div>
+      </div>`;
+
+    const pick = document.getElementById("star-pick");
+    const paint = () => [...pick.children].forEach((b, i) => b.classList.toggle("on", i < rating));
+    pick.querySelectorAll("button").forEach(b => b.onclick = () => { rating = +b.dataset.n; paint(); });
+    paint();
+
+    document.getElementById("rev-send").onclick = () => {
+      const t = document.getElementById("rev-text").value.trim()
+        .replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      if (!rating) { toast(icon("alert", 15) + " Lütfen yıldız seçin"); return; }
+      if (t.length < 10) { toast(icon("alert", 15) + " Yorum en az 10 karakter olmalı"); return; }
+      const parts = (me.name || "Üye").trim().split(/\s+/);
+      addUserReview(p.id, {
+        n: parts[0] + (parts[1] ? " " + parts[1][0].toLocaleUpperCase("tr-TR") + "." : ""),
+        c: me.city || "NOVORA Üyesi",
+        r: rating,
+        d: new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" }),
+        t, e: me.email
+      });
+      toast(icon("check", 15) + " Yorumunuz yayınlandı");
+      setTimeout(() => { location.hash = "reviews"; location.reload(); }, 600);
+    };
+  })();
 
   function showMedia(mode) {
     const g = document.getElementById("gallery");

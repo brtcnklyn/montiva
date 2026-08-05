@@ -342,3 +342,13 @@ function getReviews(id) {
   const all = stored || DEFAULT_REVIEWS;
   return all[id] || [];
 }
+
+// Üye yorumu ekler; aynı üye aynı ürüne tekrar yazarsa eskisini günceller
+function addUserReview(id, rev) {
+  const stored = (function () { try { return JSON.parse(localStorage.getItem("montiva_reviews")); } catch { return null; } })();
+  const all = stored || JSON.parse(JSON.stringify(DEFAULT_REVIEWS));
+  all[id] = all[id] || [];
+  const i = all[id].findIndex(r => r.e && rev.e && r.e === rev.e);
+  if (i >= 0) all[id][i] = rev; else all[id].unshift(rev);
+  localStorage.setItem("montiva_reviews", JSON.stringify(all));
+}

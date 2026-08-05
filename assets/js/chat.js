@@ -6,6 +6,25 @@
   const BOT = "NOVO";
   const ctx = { lastProduct: null, greeted: false };
 
+  /* ---------- sohbet hafızası: sayfalar arası devam ---------- */
+  const STORE_KEY = "novora_chat";
+  const saved = (() => {
+    try { return JSON.parse(sessionStorage.getItem(STORE_KEY)) || null; } catch (e) { return null; }
+  })();
+  function saveState() {
+    try {
+      const msgs = [...document.querySelectorAll("#chat-msgs .msg:not(.typing)")]
+        .map(m => ({ u: m.classList.contains("user") ? 1 : 0, h: m.innerHTML }))
+        .slice(-60); // son 60 mesaj yeter
+      const quick = [...document.querySelectorAll("#chat-quick button")].map(b => b.textContent);
+      sessionStorage.setItem(STORE_KEY, JSON.stringify({
+        msgs, quick,
+        open: document.getElementById("chat-panel").classList.contains("open"),
+        last: ctx.lastProduct ? ctx.lastProduct.id : null
+      }));
+    } catch (e) { /* depolama doluysa sohbet yine çalışsın */ }
+  }
+
   /* ---------- arayüz ---------- */
   function mount() {
     const fab = document.createElement("button");
@@ -19,7 +38,7 @@
       <div class="chat-head">
         <div class="avatar">${icon("bot", 22)}</div>
         <div><b>${BOT} — Yapay Zekâ Asistanı</b><span>Çevrimiçi • Anında yanıt</span></div>
-        <button onclick="document.getElementById('chat-panel').classList.remove('open')">${icon("close", 16)}</button>
+        <button id="chat-close">${icon("close", 16)}</button>
       </div>
       <div id="chat-msgs"></div>
       <div class="quick-replies" id="chat-quick"></div>
@@ -32,8 +51,28 @@
     document.body.appendChild(panel);
     document.getElementById("chat-send").onclick = send;
     document.getElementById("chat-in").addEventListener("keydown", e => { if (e.key === "Enter") send(); });
+    document.getElementById("chat-close").onclick = () => { panel.classList.remove("open"); saveState(); };
 
     const u = (typeof AUTH !== "undefined") ? AUTH.current() : null;
+
+    // önceki sayfadan kalan sohbet varsa kaldığı yerden devam et
+    if (saved && saved.msgs && saved.msgs.length) {
+      const box = document.getElementById("chat-msgs");
+      saved.msgs.forEach(m => {
+        const d = el(`<div class="msg ${m.u ? "user" : "bot"}"></div>`);
+        d.innerHTML = m.h; // userSay textContent ile yazdığı için kayıt zaten kaçışlı
+        box.appendChild(d);
+      });
+      if (saved.last && typeof getProduct === "function") ctx.lastProduct = getProduct(saved.last) || null;
+      quickReplies(saved.quick && saved.quick.length
+        ? saved.quick
+        : (u ? ["Siparişlerim", "İade nasıl yapılır?", "Hangisini önerirsin?", "Kargo & teslimat"]
+             : ["Ürünleri göster", "Hangisini önerirsin?", "Kargo & teslimat", "İade nasıl yapılır?"]));
+      if (saved.open) panel.classList.add("open"); // odak çalma yok, sadece açık kalsın
+      scrollDown();
+      return;
+    }
+
     quickReplies(u
       ? ["Siparişlerim", "İade nasıl yapılır?", "Hangisini önerirsin?", "Kargo & teslimat"]
       : ["Ürünleri göster", "Hangisini önerirsin?", "Kargo & teslimat", "İade nasıl yapılır?"]);
@@ -53,6 +92,7 @@
     const p = document.getElementById("chat-panel");
     p.classList.toggle("open");
     if (p.classList.contains("open")) document.getElementById("chat-in").focus();
+    saveState();
   }
   function selam() {
     const h = new Date().getHours();
@@ -64,8 +104,8 @@
 
   function el(html) { const d = document.createElement("div"); d.innerHTML = html; return d.firstElementChild; }
   function scrollDown() { const m = document.getElementById("chat-msgs"); m.scrollTop = m.scrollHeight; }
-  function userSay(t) { const d = el(`<div class="msg user"></div>`); d.textContent = t; document.getElementById("chat-msgs").appendChild(d); scrollDown(); }
-  function botSay(html) { document.getElementById("chat-msgs").appendChild(el(`<div class="msg bot">${html}</div>`)); scrollDown(); }
+  function userSay(t) { const d = el(`<div class="msg user"></div>`); d.textContent = t; document.getElementById("chat-msgs").appendChild(d); scrollDown(); saveState(); }
+  function botSay(html) { document.getElementById("chat-msgs").appendChild(el(`<div class="msg bot">${html}</div>`)); scrollDown(); saveState(); }
   function typing(cb) {
     const t = el(`<div class="msg bot typing"><i></i><i></i><i></i></div>`);
     document.getElementById("chat-msgs").appendChild(t); scrollDown();
@@ -78,6 +118,7 @@
       b.onclick = () => { userSay(txt); typing(() => answer(txt)); };
       q.appendChild(b);
     });
+    saveState();
   }
   function send() {
     const inp = document.getElementById("chat-in"); const t = inp.value.trim();
